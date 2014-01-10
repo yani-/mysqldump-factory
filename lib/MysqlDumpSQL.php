@@ -228,18 +228,14 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Import database from file
      *
-     * @return void
+     * @param  string $fileName Name of file
+     * @return mixed
      */
-    public function importFromFile($file)
+    public function import($fileName)
     {
-        // if (!is_resource($file)) {
-        //     $file = fopen($file, 'r');
-        // }
+        $sql = file_get_contents($fileName);
 
-        // // Read database file
-        // $sql = stream_get_contents($file);
-
-        // return $this->dbHandler->query($sql);
+        return mysql_query($sql, $this->getConnection());
     }
 
     /**
@@ -283,7 +279,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table structure extractor
      *
-     * @param  string $tableName  Name of table to export
+     * @param  string $tableName Name of table to export
      * @return bool
      */
     protected function getTableStructure($tableName)
@@ -322,8 +318,8 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table rows extractor
      *
-     * @param  string $tableName  Name of table to export
-     * @param  array  $clauses    Query parameters
+     * @param  string $tableName Name of table to export
+     * @param  array  $clauses   Query parameters
      * @return void
      */
     private function listValues($tableName, $clauses = array())

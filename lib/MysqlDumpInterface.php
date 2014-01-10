@@ -100,9 +100,10 @@ interface MysqlDumpInterface
     /**
      * Import database from file
      *
-     * @return void
+     * @param  string $fileName Name of file
+     * @return mixed
      */
-    public function importFromFile($file);
+    public function import($fileName);
 
     /**
      * Get list of tables
