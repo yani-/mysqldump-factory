@@ -99,6 +99,11 @@ class MysqlDumpSQL implements MysqlDumpInterface
         $this->queryAdapter = new MysqlQueryAdapter('mysql');
     }
 
+    /**
+     * Create MySQL connection (lazy loading)
+     *
+     * @return mixed
+     */
     public function getConnection()
     {
         if ($this->connection === null) {
@@ -108,12 +113,13 @@ class MysqlDumpSQL implements MysqlDumpInterface
             // Select database and set default encoding
             if ($this->connection) {
                 if (mysql_select_db($this->database, $this->connection)) {
-                    mysql_query($this->queryAdapter->set_names( 'utf8' ), $this->connection);
+                    $query = $this->queryAdapter->set_names( 'utf8' );
+                    mysql_query($query, $this->connection);
                 } else {
-                    throw new \Exception('Could not select database: ' . mysql_error($this->connection));
+                    throw new \Exception('Could not select MySQL database: ' . mysql_error($this->connection));
                 }
             } else {
-                throw new \Exception('Unable to connect to any database server: ' . mysql_error($this->connection));
+                throw new \Exception('Unable to connect to MySQL database server: ' . mysql_error($this->connection));
             }
         }
 
@@ -277,7 +283,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table structure extractor
      *
-     * @param string $tableName  Name of table to export
+     * @param  string $tableName  Name of table to export
      * @return bool
      */
     protected function getTableStructure($tableName)
@@ -316,9 +322,9 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table rows extractor
      *
-     * @param string $tableName  Name of table to export
-     * @param array  $clauses    Query parameters
-     * @return null
+     * @param  string $tableName  Name of table to export
+     * @param  array  $clauses    Query parameters
+     * @return void
      */
     private function listValues($tableName, $clauses = array())
     {
