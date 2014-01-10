@@ -233,8 +233,10 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function import($fileName)
     {
+        // Read database file
         $sql = file_get_contents($fileName);
 
+        // Run SQL queries
         return mysql_query($sql, $this->getConnection());
     }
 
