@@ -1,0 +1,25 @@
+{
+    "name": "mysqldump-factory/mysqldump-factory",
+    "type": "library",
+    "description": "Fully tested, mysqldump factory for PHP 5.2.17, 5.3, 5.4, 5.5",
+    "keywords": ["mysqldump", "pdodump"],
+    "homepage": "http://github.com/yani-/mysqldump-factory",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yani Iliev",
+            "email": "yani@iliev.me",
+            "homepage": "https://yani.iliev.me",
+            "role": "developer"
+        },
+        {
+            "name": "Bobby Angelov",
+            "email": "bobby@servmask.com",
+            "homepage": "https://servmask.com",
+            "role": "developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.17"
+    }
+}
