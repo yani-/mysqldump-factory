@@ -11,13 +11,8 @@ PHP v5.2 and up. Tested on PHP v5.2.17, v5.3, v5.4, v5.5
 
 ### Usage
 ```php
-// example.php
-require_once 'lib/Bandar.php';
-define(
-    'BANDAR_TEMPLATES_PATH',
-    dirname(__FILE__) . DIRECTORY_SEPARATOR . 'views'
-);
-Bandar::render('users/list', array('users' => array('name' => 'John Smith')));
+require_once 'lib/MysqlDumpFactory.php';
+$mc = MysqlDumpFactory::makeMysqlDump('dbhost', 'dbuser', 'dbpass', 'dbname',class_exists('PDO'));
 ```
 
 ### Tests
@@ -35,5 +30,5 @@ Make sure to submit your pull requests against the **develop** branch
 MIT
 
 ### Authors
-Yani Iliev
-Bobby Angelov
+* Yani Iliev
+* Bobby Angelov
