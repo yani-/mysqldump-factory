@@ -26,6 +26,7 @@
  * @category  Tests
  * @package   MysqlDumpFactory
  * @author    Yani Iliev <yani@iliev.me>
+ * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
  * @version   GIT: 1.0.0

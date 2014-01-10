@@ -11,6 +11,12 @@
             "email": "yani@iliev.me",
             "homepage": "https://yani.iliev.me",
             "role": "developer"
+        },
+        {
+            "name": "Bobby Angelov",
+            "email": "bobby@servmask.com",
+            "homepage": "https://servmask.com",
+            "role": "developer"
         }
     ],
     "require": {
