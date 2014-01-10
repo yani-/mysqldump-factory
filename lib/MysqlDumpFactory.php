@@ -46,7 +46,7 @@
  */
 class MysqlDumpFactory
 {
-    public static function makeMysqlDump($hostname, $username, $password, $database, $pdo = false)
+    public static function makeMysqlDump($hostname = 'localhost', $username = '', $password = '', $database = '', $pdo = false)
     {
         // is PDO class available?
         if ($pdo) {
