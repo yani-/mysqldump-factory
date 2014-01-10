@@ -128,7 +128,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
                 $query = $this->queryAdapter->set_names( 'utf8' );
                 $this->connection->exec($query);
             } catch (PDOException $e) {
-                throw new \Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
+                throw new Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
             }
         }
 

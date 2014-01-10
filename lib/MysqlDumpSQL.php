@@ -118,10 +118,10 @@ class MysqlDumpSQL implements MysqlDumpInterface
                     $query = $this->queryAdapter->set_names( 'utf8' );
                     mysql_query($query, $this->connection);
                 } else {
-                    throw new \Exception('Could not select MySQL database: ' . mysql_error($this->connection));
+                    throw new Exception('Could not select MySQL database: ' . mysql_error($this->connection));
                 }
             } else {
-                throw new \Exception('Unable to connect to MySQL database server: ' . mysql_error($this->connection));
+                throw new Exception('Unable to connect to MySQL database server: ' . mysql_error($this->connection));
             }
         }
 
