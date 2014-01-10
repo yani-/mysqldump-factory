@@ -46,7 +46,7 @@
  */
 class MysqlDumpFactory
 {
-    public static function makeMysqlDump($pdo = false)
+    public static function makeMysqlDump($hostname, $username, $password, $database, $pdo = false)
     {
         // is PDO class available?
         if ($pdo) {
@@ -55,14 +55,14 @@ class MysqlDumpFactory
                 DIRECTORY_SEPARATOR .
                 'MysqlDumpPDO.php';
 
-            return new MysqlDumpPDO();
+            return new MysqlDumpPDO($hostname, $username, $password, $database);
         } else {
             require_once
                 dirname(__FILE__) .
                 DIRECTORY_SEPARATOR .
                 'MysqlDumpSQL.php';
 
-            return new MysqlDumpSQL();
+            return new MysqlDumpSQL($hostname, $username, $password, $database);
         }
     }
 }
