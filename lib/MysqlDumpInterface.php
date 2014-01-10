@@ -51,10 +51,10 @@ interface MysqlDumpInterface
     /**
      * Define MySQL credentials for the current connection
      *
-     * @param  string $db        Database name
-     * @param  string $user      SQL account username
-     * @param  string $pass      SQL account password
-     * @param  string $host      SQL server to connect to
+     * @param  string $hostname MySQL Hostname
+     * @param  string $username MySQL Username
+     * @param  string $password MySQL Password
+     * @param  string $database MySQL Database
      * @return void
      */
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '');
