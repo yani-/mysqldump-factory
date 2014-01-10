@@ -49,46 +49,42 @@ interface MysqlDumpInterface
     const MAXLINESIZE = 1000000;
 
     /**
-     * Constructor of Mysqldump. Note that in the case of an SQLite database connection, the filename must be in the $db parameter.
+     * Define MySQL credentials for the current connection
      *
-     * @param string $db        Database name
-     * @param string $user      SQL account username
-     * @param string $pass      SQL account password
-     * @param string $host      SQL server to connect to
-     * @return null
+     * @param  string $db        Database name
+     * @param  string $user      SQL account username
+     * @param  string $pass      SQL account password
+     * @param  string $host      SQL server to connect to
+     * @return void
      */
-    public function __construct($db = '', $user = '', $pass = '', $host = 'localhost');
-
-    /**
-     * jquery style extend, merges arrays (without errors if the passed
-     * values are not arrays)
-     *
-     * @param array $args       default settings
-     * @param array $extended   user settings
-     *
-     * @return array $extended  merged user settings with default settings
-     */
-    public function extend();
-
+    public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '');
 
     /**
      * Set new settings
      *
+     * @param  string Name of the parameter
+     * @param  mixed  Value of the parameter
      * @return void
      */
-    public function set($settings);
+    public function set($key, $value);
 
     /**
-     * Main call
+     * Dump database into a file
      *
-     * @param string $filename  Name of file to write sql dump to
-     * @param array  $clauses   Query parameters
-     * @return bool
+     * @param  array $clauses Additional query parameters
+     * @return void
      */
-    public function start($filename = '', $clauses = array());
+    public function dump($clauses = array());
 
     /**
-     * Get current file name
+     * Set output file name
+     *
+     * @return string
+     */
+    public function setFileName($fileName);
+
+    /**
+     * Get output file name
      *
      * @return string
      */
@@ -109,7 +105,7 @@ interface MysqlDumpInterface
     public function importFromFile($file);
 
     /**
-     * Returns list of tables
+     * Get list of tables
      *
      * @return array
      */

@@ -34,7 +34,8 @@
  */
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlDumpInterface.php';
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'TypeAdapter.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlQueryAdapter.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
 
 /**
  * MysqlDumpSQL class
@@ -49,147 +50,123 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'TypeAdapter.php';
  */
 class MysqlDumpSQL implements MysqlDumpInterface
 {
-    // This can be set both on constructor or manually
-    public $host;
-    public $user;
-    public $pass;
-    public $db;
-    public $fileName = 'dump.sql';
+    protected $hostname         = null;
 
-    // Internal stuff
-    private $settings = array();
-    private $tables = array();
-    private $views = array();
-    private $dbHandler;
-    private $defaultSettings = array(
+    protected $username         = null;
+
+    protected $password         = null;
+
+    protected $database         = null;
+
+    protected $fileName         = 'dump.sql';
+
+    protected $tables           = array();
+
+    protected $views            = array();
+
+    protected $fileAdapter      = null;
+
+    protected $queryAdapter     = null;
+
+    protected $connection       = null;
+
+    protected $settings  = array(
         'include-tables'     => array(),
         'exclude-tables'     => array(),
-        'compress'           => 0,
         'no-data'            => false,
         'add-drop-table'     => false,
-        'single-transaction' => true,
-        'lock-tables'        => false,
-        'add-locks'          => true,
         'extended-insert'    => true
     );
-    private $compressManager;
 
     /**
-     * Constructor of Mysqldump. Note that in the case of an SQLite database connection, the filename must be in the $db parameter.
+     * Define MySQL credentials for the current connection
      *
-     * @param string $db        Database name
-     * @param string $user      SQL account username
-     * @param string $pass      SQL account password
-     * @param string $host      SQL server to connect to
-     * @return null
+     * @param  string $db        Database name
+     * @param  string $user      SQL account username
+     * @param  string $pass      SQL account password
+     * @param  string $host      SQL server to connect to
+     * @return void
      */
-    public function __construct($db = '', $user = '', $pass = '', $host = 'localhost')
+    public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '')
     {
-        $this->db = $db;
-        $this->user = $user;
-        $this->pass = $pass;
-        $this->host = $host;
+        // Set MySQL credentials
+        $this->hostname = $hostname;
+        $this->username = $username;
+        $this->password = $password;
+        $this->database = $database;
+
+        // Set Query Adapter
+        $this->queryAdapter = new MysqlQueryAdapter('mysql');
     }
 
-    /**
-     * jquery style extend, merges arrays (without errors if the passed
-     * values are not arrays)
-     *
-     * @param array $args       default settings
-     * @param array $extended   user settings
-     *
-     * @return array $extended  merged user settings with default settings
-     */
-    public function extend()
+    public function getConnection()
     {
-        $args = func_get_args();
-        $extended = array();
-        if (is_array($args) && count($args) > 0) {
-            foreach ($args as $array) {
-                if (is_array($array)) {
-                    $extended = array_merge($extended, $array);
+        if ($this->connection === null) {
+            // Make connection
+            $this->connection = mysql_pconnect($this->hostname, $this->username, $this->password);
+
+            // Select database and set default encoding
+            if ($this->connection) {
+                if (mysql_select_db($this->database, $this->connection)) {
+                    mysql_query($this->queryAdapter->set_names( 'utf8' ), $this->connection);
+                } else {
+                    throw new \Exception('Could not select database: ' . mysql_error($this->connection));
                 }
+            } else {
+                throw new \Exception('Unable to connect to any database server: ' . mysql_error($this->connection));
             }
         }
 
-        return $extended;
+        return $this->connection;
     }
-
 
     /**
      * Set new settings
      *
+     * @param  string Name of the parameter
+     * @param  mixed  Value of the parameter
      * @return void
      */
-    public function set($settings)
+    public function set($key, $value)
     {
-        $this->settings = $this->extend($this->defaultSettings, $settings);
+        $this->settings[$key] = $value;
+
+        return $this;
     }
 
     /**
-     * Connect with PDO
+     * Dump database into a file
      *
-     * @return bool
+     * @param  array $clauses Additional query parameters
+     * @return void
      */
-    private function connect()
+    public function dump($clauses = array())
     {
-        // TODO
-        $this->dbHandler = new PDO($this->type . ":host=" . $this->host.";dbname=" . $this->db, $this->user, $this->pass, $this->pdo_options);
-        // Fix for always-unicode output
-        $this->dbHandler->exec("SET NAMES utf8");
+        // Set File Adapter
+        $this->fileAdapter = new MysqlFileAdapter();
 
-        $this->dbHandler->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
-        $this->adapter = new TypeAdapter($this->type);
-    }
+        // Set output file
+        $this->fileAdapter->open($this->getFileName());
 
-    /**
-     * Main call
-     *
-     * @param string $filename  Name of file to write sql dump to
-     * @param array  $clauses   Query parameters
-     * @return bool
-     */
-    public function start($filename = '', $clauses = array())
-    {
-        // Output file can be redefined here
-        if ( !empty($filename) ) {
-            $this->fileName = $filename;
-        }
-
-        // We must set a name to continue
-        if ( empty($this->fileName) ) {
-            throw new \Exception("Output file name is not set", 1);
-        }
-
-        // Connect to database
-        $this->connect();
-
-        // Create a new compressManager to manage compressed output
-        $this->compressManager = CompressManagerFactory::create($this->settings['compress']);
-
-        if (! $this->compressManager->open($this->fileName)) {
-            throw new \Exception("Output file is not writable", 2);
-        }
-
-        // Formating dump file
-        $this->compressManager->write($this->getHeader());
+        // Write Headers Formating dump file
+        $this->fileAdapter->write($this->getHeader());
 
         // Listing all tables from database
         $this->tables = array();
-        foreach ($this->dbHandler->query($this->adapter->show_tables($this->db)) as $row) {
-            if (empty($this->settings['include-tables']) || (! empty($this->settings['include-tables']) && in_array(current($row), $this->settings['include-tables'], true))) {
-                array_push($this->tables, current($row));
+        foreach ($this->listTables() as $table) {
+            if (empty($this->settings['include-tables']) || in_array($table, $this->settings['include-tables'])) {
+                $this->tables[] = $table;
             }
         }
 
-        // Exporting tables one by one
+        // Export Tables
         foreach ($this->tables as $table) {
-            if (in_array($table, $this->settings['exclude-tables'], true)) {
+            if (in_array($table, $this->settings['exclude-tables'])) {
                 continue;
             }
 
-            $is_table = $this->getTableStructure($table);
-            if (true === $is_table) {
+            $isTable = $this->getTableStructure($table);
+            if (true === $isTable) {
                 if (false === $this->settings['no-data']) {
                     $this->listValues($table, $clauses);
                 } else if (isset($clauses[$table])) {
@@ -198,16 +175,26 @@ class MysqlDumpSQL implements MysqlDumpInterface
             }
         }
 
-        // Exporting views one by one
+        // Export Views
         foreach ($this->views as $view) {
-            $this->compressManager->write($view);
+            $this->fileAdapter->write($view);
         }
-
-        //$this->compressManager->close();
     }
 
     /**
-     * Get current file name
+     * Set output file name
+     *
+     * @return string
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get output file name
      *
      * @return string
      */
@@ -223,12 +210,12 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function truncateDatabase()
     {
-        // Connect to database
-        $this->connect();
-
-        foreach ($this->dbHandler->query($this->adapter->show_tables($this->db)) as $row) {
+        $query = $this->queryAdapter->show_tables($this->database);
+        $result = mysql_query($query, $this->getConnection());
+        while ($row = mysql_fetch_assoc($result)) {
             // Drop table
-            $this->dbHandler->query($this->adapter->drop_table($row['tbl_name']));
+            $delete = $this->queryAdapter->drop_table($row['tbl_name']);
+            mysql_query($delete, $this->getConnection());
         }
     }
 
@@ -239,49 +226,49 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function importFromFile($file)
     {
-        if (!is_resource($file)) {
-            $file = fopen($file, 'r');
-        }
+        // if (!is_resource($file)) {
+        //     $file = fopen($file, 'r');
+        // }
 
-        // Read database file
-        $sql = stream_get_contents($file);
+        // // Read database file
+        // $sql = stream_get_contents($file);
 
-        return $this->dbHandler->query($sql);
+        // return $this->dbHandler->query($sql);
     }
 
     /**
-     * Returns list of tables
+     * Get list of tables
      *
      * @return array
      */
     public function listTables()
     {
-        // Connect to database
-        $this->connect();
+        $tables = array();
 
-        $result = array();
-        foreach ($this->dbHandler->query($this->adapter->show_tables($this->db)) as $row) {
-            $result[] = $row['tbl_name'];
+        $query = $this->queryAdapter->show_tables($this->database);
+        $result = mysql_query($query, $this->getConnection());
+        while ($row = mysql_fetch_assoc($result)) {
+            $tables[] = $row['tbl_name'];
         }
 
-        return $result;
+        return $tables;
     }
 
     /**
      * Returns header for dump file
      *
-     * @return null
+     * @return string
      */
-    private function getHeader()
+    protected function getHeader()
     {
         // Some info about software, source and time
         $header = "-- All In One WP Migration SQL Dump\n" .
                 "-- http://servmask.com/\n" .
                 "--\n" .
-                "-- Host: {$this->host}\n" .
+                "-- Host: {$this->hostname}\n" .
                 "-- Generation Time: " . date('r') . "\n\n" .
                 "--\n" .
-                "-- Database: `{$this->db}`\n" .
+                "-- Database: `{$this->database}`\n" .
                 "--\n\n";
 
         return $header;
@@ -290,34 +277,35 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table structure extractor
      *
-     * @param string $tablename  Name of table to export
-     * @return null
+     * @param string $tableName  Name of table to export
+     * @return bool
      */
-    private function getTableStructure($tablename)
+    protected function getTableStructure($tableName)
     {
-        $stmt = $this->adapter->show_create_table($tablename);
-        foreach ($this->dbHandler->query($stmt) as $r) {
-            if (isset($r['Create Table'])) {
-                $this->compressManager->write("-- " .
+        $query = $this->queryAdapter->show_create_table($tableName);
+        $result = mysql_query($query, $this->getConnection());
+        while ($row = mysql_fetch_assoc($result)) {
+            if (isset($row['Create Table'])) {
+                $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
                     "\n\n" .
                     "--\n" .
-                    "-- Table structure for table `$tablename`\n--\n\n");
+                    "-- Table structure for table `$tableName`\n--\n\n");
 
                 if ($this->settings['add-drop-table']) {
-                    $this->compressManager->write("DROP TABLE IF EXISTS `$tablename`;\n\n");
+                    $this->fileAdapter->write("DROP TABLE IF EXISTS `$tableName`;\n\n");
                 }
 
-                $this->compressManager->write($r['Create Table'] . ";\n\n");
+                $this->fileAdapter->write($row['Create Table'] . ";\n\n");
 
                 return true;
             }
-            if ( isset($r['Create View']) ) {
+            if (isset($row['Create View'])) {
                 $view  = "-- " .
                         "--------------------------------------------------------" .
                         "\n\n";
-                $view .= "--\n-- Table structure for view `$tablename`\n--\n\n";
-                $view .= $r['Create View'] . ";\n\n";
+                $view .= "--\n-- Table structure for view `$tableName`\n--\n\n";
+                $view .= $row['Create View'] . ";\n\n";
                 $this->views[] = $view;
 
                 return false;
@@ -328,77 +316,49 @@ class MysqlDumpSQL implements MysqlDumpInterface
     /**
      * Table rows extractor
      *
-     * @param string $tablename  Name of table to export
+     * @param string $tableName  Name of table to export
      * @param array  $clauses    Query parameters
      * @return null
      */
-    private function listValues($tablename, $clauses = array())
+    private function listValues($tableName, $clauses = array())
     {
-        $this->compressManager->write(
+        $this->fileAdapter->write(
             "--\n" .
-            "-- Dumping data for table `$tablename`\n" .
+            "-- Dumping data for table `$tableName`\n" .
             "--\n\n"
         );
 
-        if ($this->settings['single-transaction']) {
-            $this->dbHandler->exec($this->adapter->start_transaction());
-        }
-
-        if ($this->settings['lock-tables']) {
-            $lockstmt = $this->adapter->lock_table($tablename);
-            if(strlen($lockstmt)){
-                $this->dbHandler->exec($lockstmt);
-            }
-        }
-
-        if ( $this->settings['add-locks'] ) {
-            $this->compressManager->write($this->adapter->start_add_lock_table($tablename));
-        }
-
-        $onlyOnce = true; $lineSize = 0;
-        $stmt = "SELECT * FROM `$tablename` ";
+        $insertFirst = true;
+        $lineSize = 0;
+        $query = "SELECT * FROM `$tableName` ";
 
         // Add query parameters
-        if (isset($clauses[$tablename]) && ($clause_query = $clauses[$tablename])) {
-            $stmt .= $clause_query;
+        if (isset($clauses[$tableName]) && ($clause_query = $clauses[$tableName])) {
+            $query .= $clause_query;
         }
 
-        foreach ($this->dbHandler->query($stmt, PDO::FETCH_NUM) as $r) {
-            $vals = array();
-            foreach ($r as $val) {
-                $vals[] = is_null($val) ? "NULL" :
-                $this->dbHandler->quote($val);
+        $result = mysql_query($query, $this->getConnection());
+        while ($row = mysql_fetch_row($result)) {
+            $items = array();
+            foreach ($row as $value) {
+                $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($value) . "'";
             }
-            if ($onlyOnce || !$this->settings['extended-insert'] ) {
-                $lineSize += $this->compressManager->write("INSERT INTO `$tablename` VALUES (" . implode(",", $vals) . ")");
-                $onlyOnce = false;
+
+            if ($insertFirst || !$this->settings['extended-insert'] ) {
+                $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $items) . ")");
+                $insertFirst = false;
             } else {
-                $lineSize += $this->compressManager->write(",(" . implode(",", $vals) . ")");
+                $lineSize += $this->fileAdapter->write(",(" . implode(",", $items) . ")");
             }
-            if ( ($lineSize > Mysqldump::MAXLINESIZE) ||
-                    !$this->settings['extended-insert'] ) {
-                $onlyOnce = true;
-                $lineSize = $this->compressManager->write(";\n");
+
+            if (($lineSize > MysqlDumpInterface::MAXLINESIZE) || !$this->settings['extended-insert'] ) {
+                $insertFirst = true;
+                $lineSize = $this->fileAdapter->write(";\n");
             }
         }
 
-        if (! $onlyOnce) {
-            $this->compressManager->write(";\n");
-        }
-
-        if ($this->settings['add-locks']) {
-            $this->compressManager->write($this->adapter->end_add_lock_table($tablename));
-        }
-
-        if ($this->settings['single-transaction']) {
-            $this->dbHandler->exec($this->adapter->commit_transaction());
-        }
-
-        if ($this->settings['lock-tables']) {
-            $lockstmt = $this->adapter->unlock_table($tablename);
-            if(strlen($lockstmt)){
-                $this->dbHandler->exec($lockstmt);
-            }
+        if (!$insertFirst) {
+            $this->fileAdapter->write(";\n");
         }
     }
 }
