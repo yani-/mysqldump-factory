@@ -54,7 +54,7 @@ class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
     public function testMakeMysqlDumpCreatePDO()
     {
         $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump(true) instanceof MysqlDumpPDO
+            MysqlDumpFactory::makeMysqlDump('', '', '', '', true) instanceof MysqlDumpPDO
         );
     }
 
