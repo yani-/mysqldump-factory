@@ -69,7 +69,12 @@ class MysqlQueryAdapter
 
     public function show_tables($databaseName)
     {
-        return "SELECT TABLE_NAME AS tbl_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA='$databaseName'";
+        return "SELECT TABLE_NAME AS table_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = '$databaseName'";
+    }
+
+    public function show_views($databaseName)
+    {
+        return "SELECT VIEW_NAME AS view_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'VIEW' AND TABLE_SCHEMA='$databaseName'";
     }
 
     public function start_transaction()
