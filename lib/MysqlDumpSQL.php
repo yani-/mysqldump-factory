@@ -119,7 +119,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         // Listing all tables from database
         $tables = array();
         foreach ($this->listTables() as $table) {
-            if (empty($this->getIncludeTables()) || in_array($table, $this->getIncludeTables())) {
+            if (count($this->getIncludeTables()) === 0 || in_array($table, $this->getIncludeTables())) {
                 $tables[] = $table;
             }
         }
