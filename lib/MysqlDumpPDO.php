@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
+ * @version   GIT: 1.0.2
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -46,7 +46,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
+ * @version   GIT: 1.0.2
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -61,23 +61,23 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
     protected $fileName         = 'dump.sql';
 
-    protected $tables           = array();
-
-    protected $views            = array();
-
     protected $fileAdapter      = null;
 
     protected $queryAdapter     = null;
 
     protected $connection       = null;
 
-    protected $settings  = array(
-        'include-tables'     => array(),
-        'exclude-tables'     => array(),
-        'no-data'            => false,
-        'add-drop-table'     => false,
-        'extended-insert'    => true
-    );
+    protected $queryClauses     = array();
+
+    protected $includeTables    = array();
+
+    protected $excludeTables    = array();
+
+    protected $noTableData      = false;
+
+    protected $addDropTable     = false;
+
+    protected $extendedInsert   = true;
 
     /**
      * Define MySQL credentials for the current connection
@@ -98,6 +98,251 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
         // Set Query Adapter
         $this->queryAdapter = new MysqlQueryAdapter('mysql');
+    }
+
+    /**
+     * Dump database into a file
+     *
+     * @return void
+     */
+    public function dump()
+    {
+        // Set File Adapter
+        $this->fileAdapter = new MysqlFileAdapter();
+
+        // Set output file
+        $this->fileAdapter->open($this->getFileName());
+
+        // Write Headers Formating dump file
+        $this->fileAdapter->write($this->getHeader());
+
+        // Listing all tables from database
+        $tables = array();
+        foreach ($this->listTables() as $table) {
+            if (empty($this->getIncludeTables()) || in_array($table, $this->getIncludeTables())) {
+                $tables[] = $table;
+            }
+        }
+
+        // Export Tables
+        foreach ($tables as $table) {
+            if (in_array($table, $this->getExcludeTables())) {
+                continue;
+            }
+
+            $isTable = $this->getTableStructure($table);
+            if (true === $isTable) {
+                $this->listValues($table);
+            }
+        }
+    }
+
+    /**
+     * Set output file name
+     *
+     * @param  string $fileName Name of the output file
+     * @return string
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get output file name
+     *
+     * @return string
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    /**
+     * Set query clauses
+     *
+     * @param  array $clauses List of SQL query clauses
+     * @return array
+     */
+    public function setQueryClauses($clauses)
+    {
+        $this->queryClauses = $clauses;
+
+        return $this;
+    }
+
+    /**
+     * Get query clauses
+     *
+     * @return array
+     */
+    public function getQueryClauses()
+    {
+        return $this->queryClauses;
+    }
+
+    /**
+     * Set include tables
+     *
+     * @param  array $tables List of tables
+     * @return array
+     */
+    public function setIncludeTables($tables)
+    {
+        $this->includeTables = $tables;
+
+        return $this;
+    }
+
+    /**
+     * Get include tables
+     *
+     * @return array
+     */
+    public function getIncludeTables()
+    {
+        return $this->includeTables;
+    }
+
+    /**
+     * Set exclude tables
+     *
+     * @param  array $tables List of tables
+     * @return array
+     */
+    public function setExcludeTables($tables)
+    {
+        $this->excludeTables = $tables;
+
+        return $this;
+    }
+
+    /**
+     * Get exclude tables
+     *
+     * @return array
+     */
+    public function getExcludeTables()
+    {
+        return $this->excludeTables;
+    }
+
+    /**
+     * Set no table data flag
+     *
+     * @param  bool $flag Do not export table data
+     * @return bool
+     */
+    public function setNoTableData($flag)
+    {
+        $this->noTableData = $flag;
+
+        return $this;
+    }
+
+    /**
+     * Get no table data flag
+     *
+     * @return bool
+     */
+    public function getNoTableData()
+    {
+        return $this->noTableData;
+    }
+
+    /**
+     * Set add drop table flag
+     *
+     * @param  bool $flag Add drop table SQL clause
+     * @return bool
+     */
+    public function setAddDropTable($flag)
+    {
+        $this->addDropTable = $flag;
+
+        return $this;
+    }
+
+    /**
+     * Get add drop table flag
+     *
+     * @return bool
+     */
+    public function getAddDropTable()
+    {
+        return $this->addDropTable;
+    }
+
+    /**
+     * Set extended insert flag
+     *
+     * @param  bool $flag Add extended insert SQL clause
+     * @return bool
+     */
+    public function setExtendedInsert($flag)
+    {
+        $this->extendedInsert = $flag;
+
+        return $this;
+    }
+
+    /**
+     * Get extended insert flag
+     *
+     * @return bool
+     */
+    public function getExtendedInsert()
+    {
+        return $this->extendedInsert;
+    }
+
+    /**
+     * Truncate database
+     *
+     * @return void
+     */
+    public function truncateDatabase()
+    {
+        $query = $this->queryAdapter->show_tables($this->database);
+        foreach ($this->getConnection()->query($query) as $row) {
+            // Drop table
+            $delete = $this->queryAdapter->drop_table($row['table_name']);
+            $this->getConnection()->query($delete);
+        }
+    }
+
+    /**
+     * Import database from file
+     *
+     * @param  string $fileName Name of file
+     * @return mixed
+     */
+    public function import($fileName)
+    {
+        // Read database file
+        $sql = file_get_contents($fileName);
+
+        // Run SQL queries
+        return $this->getConnection()->query($sql);
+    }
+
+    /**
+     * Get list of tables
+     *
+     * @return array
+     */
+    public function listTables()
+    {
+        $tables = array();
+
+        $query = $this->queryAdapter->show_tables($this->database);
+        foreach ($this->getConnection()->query($query) as $row) {
+            $tables[] = $row['table_name'];
+        }
+
+        return $tables;
     }
 
     /**
@@ -132,137 +377,6 @@ class MysqlDumpPDO implements MysqlDumpInterface
         }
 
         return $this->connection;
-    }
-
-    /**
-     * Set new settings
-     *
-     * @param  string Name of the parameter
-     * @param  mixed  Value of the parameter
-     * @return void
-     */
-    public function set($key, $value)
-    {
-        $this->settings[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Dump database into a file
-     *
-     * @param  array $clauses Additional query parameters
-     * @return void
-     */
-    public function dump($clauses = array())
-    {
-        // Set File Adapter
-        $this->fileAdapter = new MysqlFileAdapter();
-
-        // Set output file
-        $this->fileAdapter->open($this->getFileName());
-
-        // Write Headers Formating dump file
-        $this->fileAdapter->write($this->getHeader());
-
-        // Listing all tables from database
-        $this->tables = array();
-        foreach ($this->listTables() as $table) {
-            if (empty($this->settings['include-tables']) || in_array($table, $this->settings['include-tables'])) {
-                $this->tables[] = $table;
-            }
-        }
-
-        // Export Tables
-        foreach ($this->tables as $table) {
-            if (in_array($table, $this->settings['exclude-tables'])) {
-                continue;
-            }
-
-            $isTable = $this->getTableStructure($table);
-            if (true === $isTable) {
-                if (false === $this->settings['no-data']) {
-                    $this->listValues($table, $clauses);
-                } else if (isset($clauses[$table])) {
-                    $this->listValues($table, $clauses);
-                }
-            }
-        }
-
-        // Export Views
-        foreach ($this->views as $view) {
-            $this->fileAdapter->write($view);
-        }
-    }
-
-
-    /**
-     * Set output file name
-     *
-     * @return string
-     */
-    public function setFileName($fileName)
-    {
-        $this->fileName = $fileName;
-
-        return $this;
-    }
-
-    /**
-     * Get output file name
-     *
-     * @return string
-     */
-    public function getFileName()
-    {
-        return $this->fileName;
-    }
-
-    /**
-     * Truncate database
-     *
-     * @return void
-     */
-    public function truncateDatabase()
-    {
-        $query = $this->queryAdapter->show_tables($this->database);
-        foreach ($this->getConnection()->query($query) as $row) {
-            // Drop table
-            $delete = $this->queryAdapter->drop_table($row['tbl_name']);
-            $this->getConnection()->query($delete);
-        }
-    }
-
-    /**
-     * Import database from file
-     *
-     * @param  string $fileName Name of file
-     * @return mixed
-     */
-    public function import($fileName)
-    {
-        // Read database file
-        $sql = file_get_contents($fileName);
-
-        // Run SQL queries
-        return $this->getConnection()->query($sql);
-    }
-
-    /**
-     * Get list of tables
-     *
-     * @return array
-     */
-    public function listTables()
-    {
-        $tables = array();
-
-        $query = $this->queryAdapter->show_tables($this->database);
-        foreach ($this->getConnection()->query($query) as $row) {
-            $tables[] = $row['tbl_name'];
-        }
-
-        return $tables;
     }
 
     /**
@@ -302,23 +416,13 @@ class MysqlDumpPDO implements MysqlDumpInterface
                     "--\n" .
                     "-- Table structure for table `$tableName`\n--\n\n");
 
-                if ($this->settings['add-drop-table']) {
+                if ($this->getAddDropTable()) {
                     $this->fileAdapter->write("DROP TABLE IF EXISTS `$tableName`;\n\n");
                 }
 
                 $this->fileAdapter->write($row['Create Table'] . ";\n\n");
 
                 return true;
-            }
-            if (isset($row['Create View'])) {
-                $view  = "-- " .
-                        "--------------------------------------------------------" .
-                        "\n\n";
-                $view .= "--\n-- Table structure for view `$tableName`\n--\n\n";
-                $view .= $row['Create View'] . ";\n\n";
-                $this->views[] = $view;
-
-                return false;
             }
         }
     }
@@ -327,10 +431,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Table rows extractor
      *
      * @param  string $tableName Name of table to export
-     * @param  array  $clauses   Query parameters
      * @return void
      */
-    private function listValues($tableName, $clauses = array())
+    protected function listValues($tableName)
     {
         $this->fileAdapter->write(
             "--\n" .
@@ -342,25 +445,29 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $lineSize = 0;
         $query = "SELECT * FROM `$tableName` ";
 
-        // Add query parameters
-        if (isset($clauses[$tableName]) && ($clause_query = $clauses[$tableName])) {
-            $query .= $clause_query;
+        // Apply additional query clauses
+        if ($this->getNoTableData()) {
+            $clauses = $this->getQueryClauses();
+            if (isset($clauses[$tableName]) && ($queryClause = $clauses[$tableName])) {
+                $query .= $queryClause;
+            }
         }
 
+        // Generate insert statements
         foreach ($this->getConnection()->query($query, PDO::FETCH_NUM) as $row) {
             $items = array();
             foreach ($row as $value) {
                 $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
             }
 
-            if ($insertFirst || !$this->settings['extended-insert'] ) {
+            if ($insertFirst || !$this->getExtendedInsert()) {
                 $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $items) . ")");
                 $insertFirst = false;
             } else {
                 $lineSize += $this->fileAdapter->write(",(" . implode(",", $items) . ")");
             }
 
-            if (($lineSize > MysqlDumpInterface::MAXLINESIZE) || !$this->settings['extended-insert'] ) {
+            if (($lineSize > MysqlDumpInterface::MAXLINESIZE) || !$this->getExtendedInsert()) {
                 $insertFirst = true;
                 $lineSize = $this->fileAdapter->write(";\n");
             }

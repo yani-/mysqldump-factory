@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
+ * @version   GIT: 1.0.2
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -42,7 +42,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
+ * @version   GIT: 1.0.2
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 interface MysqlDumpInterface
@@ -61,25 +61,16 @@ interface MysqlDumpInterface
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '');
 
     /**
-     * Set new settings
-     *
-     * @param  string Name of the parameter
-     * @param  mixed  Value of the parameter
-     * @return void
-     */
-    public function set($key, $value);
-
-    /**
      * Dump database into a file
      *
-     * @param  array $clauses Additional query parameters
      * @return void
      */
-    public function dump($clauses = array());
+    public function dump();
 
     /**
      * Set output file name
      *
+     * @param  string $fileName Name of the output file
      * @return string
      */
     public function setFileName($fileName);
@@ -90,6 +81,96 @@ interface MysqlDumpInterface
      * @return string
      */
     public function getFileName();
+
+    /**
+     * Set query clauses
+     *
+     * @param  array $clauses List of SQL query clauses
+     * @return array
+     */
+    public function setQueryClauses($clauses);
+
+    /**
+     * Get query clauses
+     *
+     * @return array
+     */
+    public function getQueryClauses();
+
+    /**
+     * Set include tables
+     *
+     * @param  array $tables List of tables
+     * @return array
+     */
+    public function setIncludeTables($tables);
+
+    /**
+     * Get include tables
+     *
+     * @return array
+     */
+    public function getIncludeTables();
+
+    /**
+     * Set exclude tables
+     *
+     * @param  array $tables List of tables
+     * @return array
+     */
+    public function setExcludeTables($tables);
+
+    /**
+     * Get exclude tables
+     *
+     * @return array
+     */
+    public function getExcludeTables();
+
+    /**
+     * Set no table data flag
+     *
+     * @param  bool $flag Do not export table data
+     * @return bool
+     */
+    public function setNoTableData($flag);
+
+    /**
+     * Get no table data flag
+     *
+     * @return bool
+     */
+    public function getNoTableData();
+
+    /**
+     * Set add drop table flag
+     *
+     * @param  bool $flag Add drop table SQL clause
+     * @return bool
+     */
+    public function setAddDropTable($flag);
+
+    /**
+     * Get add drop table flag
+     *
+     * @return bool
+     */
+    public function getAddDropTable();
+
+    /**
+     * Set extended insert flag
+     *
+     * @param  bool $flag Add extended insert SQL clause
+     * @return bool
+     */
+    public function setExtendedInsert($flag);
+
+    /**
+     * Get extended insert flag
+     *
+     * @return bool
+     */
+    public function getExtendedInsert();
 
     /**
      * Truncate database
