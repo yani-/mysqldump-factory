@@ -317,15 +317,32 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Import database from file
      *
      * @param  string $fileName Name of file
-     * @return mixed
+     * @return bool
      */
     public function import($fileName)
     {
-        // Read database file
-        $sql = file_get_contents($fileName);
+        $fileHandler = fopen($fileName, 'r');
+        if ($fileHandler) {
+            $query = null;
 
-        // Run SQL queries
-        return $this->getConnection()->query($sql);
+            // Read database file line by line
+            while (($line = fgets($fileHandler)) !== false) {
+                $query .= $line;
+                if (preg_match('/;\s*$/', $line)) {
+                    try {
+                        // Run SQL query
+                        $result = $this->getConnection()->query($query);
+                        if ($result) {
+                            $query = null;
+                        }
+                    } catch (PDOException $e) {
+                        continue;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 
     /**
@@ -461,10 +478,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
             }
 
             if ($insertFirst || !$this->getExtendedInsert()) {
-                $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $items) . ")");
+                $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $items) . ')');
                 $insertFirst = false;
             } else {
-                $lineSize += $this->fileAdapter->write(",(" . implode(",", $items) . ")");
+                $lineSize += $this->fileAdapter->write(',(' . implode(',', $items) . ')');
             }
 
             if (($lineSize > MysqlDumpInterface::MAXLINESIZE) || !$this->getExtendedInsert()) {
