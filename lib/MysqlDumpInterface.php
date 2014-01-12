@@ -183,7 +183,7 @@ interface MysqlDumpInterface
      * Import database from file
      *
      * @param  string $fileName Name of file
-     * @return mixed
+     * @return bool
      */
     public function import($fileName);
 
