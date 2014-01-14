@@ -66,6 +66,8 @@ class MysqlDumpSQL implements MysqlDumpInterface
     protected $queryAdapter     = null;
 
     protected $connection       = null;
+    
+    protected $tablePrefix      = null;
 
     protected $queryClauses     = array();
 
@@ -159,6 +161,29 @@ class MysqlDumpSQL implements MysqlDumpInterface
     {
         return $this->fileName;
     }
+    
+    /**
+     * Set table prefix
+     *
+     * @param  string $prefix Name of the table prefix
+     * @return string
+     */
+    public function setTablePrefix($prefix)
+    {
+        $this->tablePrefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get table prefix
+     *
+     * @return string
+     */
+    public function getTablePrefix()
+    {
+        return $this->tablePrefix;
+    }    
 
     /**
      * Set query clauses
