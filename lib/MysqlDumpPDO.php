@@ -66,6 +66,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
     protected $queryAdapter     = null;
 
     protected $connection       = null;
+    
+    protected $tablePrefix      = null;    
 
     protected $queryClauses     = array();
 
@@ -141,7 +143,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set output file name
      *
      * @param  string $fileName Name of the output file
-     * @return string
+     * @return MysqlDumpPDO
      */
     public function setFileName($fileName)
     {
@@ -161,10 +163,33 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
+     * Set table prefix
+     *
+     * @param  string $prefix Name of the table prefix
+     * @return MysqlDumpPDO
+     */
+    public function setTablePrefix($prefix)
+    {
+        $this->tablePrefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get table prefix
+     *
+     * @return string
+     */
+    public function getTablePrefix()
+    {
+        return $this->tablePrefix;
+    }
+
+    /**
      * Set query clauses
      *
      * @param  array $clauses List of SQL query clauses
-     * @return array
+     * @return MysqlDumpPDO
      */
     public function setQueryClauses($clauses)
     {
@@ -187,7 +212,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set include tables
      *
      * @param  array $tables List of tables
-     * @return array
+     * @return MysqlDumpPDO
      */
     public function setIncludeTables($tables)
     {
@@ -210,7 +235,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set exclude tables
      *
      * @param  array $tables List of tables
-     * @return array
+     * @return MysqlDumpPDO
      */
     public function setExcludeTables($tables)
     {
@@ -233,7 +258,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set no table data flag
      *
      * @param  bool $flag Do not export table data
-     * @return bool
+     * @return MysqlDumpPDO
      */
     public function setNoTableData($flag)
     {
@@ -256,7 +281,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set add drop table flag
      *
      * @param  bool $flag Add drop table SQL clause
-     * @return bool
+     * @return MysqlDumpPDO
      */
     public function setAddDropTable($flag)
     {
@@ -279,7 +304,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set extended insert flag
      *
      * @param  bool $flag Add extended insert SQL clause
-     * @return bool
+     * @return MysqlDumpPDO
      */
     public function setExtendedInsert($flag)
     {
