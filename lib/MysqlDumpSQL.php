@@ -143,7 +143,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set output file name
      *
      * @param  string $fileName Name of the output file
-     * @return string
+     * @return MysqlDumpSQL
      */
     public function setFileName($fileName)
     {
@@ -166,7 +166,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return string
+     * @return MysqlDumpSQL
      */
     public function setTablePrefix($prefix)
     {
@@ -183,13 +183,13 @@ class MysqlDumpSQL implements MysqlDumpInterface
     public function getTablePrefix()
     {
         return $this->tablePrefix;
-    }    
+    }
 
     /**
      * Set query clauses
      *
      * @param  array $clauses List of SQL query clauses
-     * @return array
+     * @return MysqlDumpSQL
      */
     public function setQueryClauses($clauses)
     {
@@ -212,7 +212,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set include tables
      *
      * @param  array $tables List of tables
-     * @return array
+     * @return MysqlDumpSQL
      */
     public function setIncludeTables($tables)
     {
@@ -235,7 +235,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set exclude tables
      *
      * @param  array $tables List of tables
-     * @return array
+     * @return MysqlDumpSQL
      */
     public function setExcludeTables($tables)
     {
@@ -258,7 +258,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set no table data flag
      *
      * @param  bool $flag Do not export table data
-     * @return bool
+     * @return MysqlDumpSQL
      */
     public function setNoTableData($flag)
     {
@@ -281,7 +281,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set add drop table flag
      *
      * @param  bool $flag Add drop table SQL clause
-     * @return bool
+     * @return MysqlDumpSQL
      */
     public function setAddDropTable($flag)
     {
@@ -304,7 +304,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * Set extended insert flag
      *
      * @param  bool $flag Add extended insert SQL clause
-     * @return bool
+     * @return MysqlDumpSQL
      */
     public function setExtendedInsert($flag)
     {
