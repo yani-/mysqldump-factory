@@ -493,7 +493,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
                     $this->fileAdapter->write("DROP TABLE IF EXISTS `$tableName`;\n\n");
                 }
 
-                $this->fileAdapter->write($row['Create Table'] . ";\n\n");
+                // Replace table prefix
+                $createTable = $this->replaceTablePrefix($row['Create Table'], false);
+
+                $this->fileAdapter->write($createTable . ";\n\n");
 
                 return true;
             }
