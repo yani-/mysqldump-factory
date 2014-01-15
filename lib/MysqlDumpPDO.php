@@ -168,7 +168,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set old table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpSQL
+     * @return MysqlDumpPDO
      */
     public function setOldTablePrefix($prefix)
     {
@@ -191,7 +191,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Set new table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpSQL
+     * @return MysqlDumpPDO
      */
     public function setNewTablePrefix($prefix)
     {
