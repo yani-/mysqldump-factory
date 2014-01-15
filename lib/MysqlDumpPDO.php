@@ -377,6 +377,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
             // Read database file line by line
             while (($line = fgets($fileHandler)) !== false) {
+                // Replace table prefix
+                $line = $this->replaceTablePrefix($line);
+
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
                     try {
@@ -477,6 +480,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $query = $this->queryAdapter->show_create_table($tableName);
         foreach ($this->getConnection()->query($query) as $row) {
             if (isset($row['Create Table'])) {
+                // Replace table prefix
+                $tableName = $this->replaceTablePrefix($tableName);
+
                 $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
                     "\n\n" .
@@ -502,12 +508,6 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     protected function listValues($tableName)
     {
-        $this->fileAdapter->write(
-            "--\n" .
-            "-- Dumping data for table `$tableName`\n" .
-            "--\n\n"
-        );
-
         $insertFirst = true;
         $lineSize = 0;
         $query = "SELECT * FROM `$tableName` ";
@@ -519,6 +519,15 @@ class MysqlDumpPDO implements MysqlDumpInterface
                 $query .= $queryClause;
             }
         }
+
+        // Replace table prefix
+        $tableName = $this->replaceTablePrefix($tableName);
+
+        $this->fileAdapter->write(
+            "--\n" .
+            "-- Dumping data for table `$tableName`\n" .
+            "--\n\n"
+        );
 
         // Generate insert statements
         foreach ($this->getConnection()->query($query, PDO::FETCH_NUM) as $row) {
@@ -542,6 +551,22 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
         if (!$insertFirst) {
             $this->fileAdapter->write(";\n");
+        }
+    }
+
+    /**
+     * Replace table prefix (old to new one)
+     *
+     * @param  string $tableName Name of table
+     * @param  bool   $start     Match start of string, or start of line
+     * @return string
+     */
+    protected function replaceTablePrefix($tableName, $start = true) {
+        $pattern = preg_quote($this->getOldTablePrefix(), '/');
+        if ($start) {
+            return preg_replace('/^' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
+        } else {
+            return preg_replace('/' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
         }
     }
 }
