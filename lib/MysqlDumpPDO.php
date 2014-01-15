@@ -536,6 +536,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
         foreach ($this->getConnection()->query($query, PDO::FETCH_NUM) as $row) {
             $items = array();
             foreach ($row as $value) {
+                if ($value) {
+                    $value = $this->replaceTablePrefix($value);
+                }
                 $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
             }
 
