@@ -86,7 +86,7 @@ interface MysqlDumpInterface
      * Set old table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpSQL
+     * @return MysqlDumpInterface
      */
     public function setOldTablePrefix($prefix);
 
@@ -101,7 +101,7 @@ interface MysqlDumpInterface
      * Set new table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpSQL
+     * @return MysqlDumpInterface
      */
     public function setNewTablePrefix($prefix);
 
