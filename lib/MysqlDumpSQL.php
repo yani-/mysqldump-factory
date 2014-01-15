@@ -379,7 +379,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
             // Read database file line by line
             while (($line = fgets($fileHandler)) !== false) {
                 // Replace table prefix
-                $line = $this->replaceTablePrefix($line);
+                $line = $this->replaceTablePrefix($line, false);
 
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
@@ -473,7 +473,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_assoc($result)) {
             if (isset($row['Create Table'])) {
                 // Replace table prefix
-                $tableName = $this->replaceTablePrefix($tableName, false);
+                $tableName = $this->replaceTablePrefix($tableName);
 
                 $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
