@@ -529,6 +529,9 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_row($result)) {
             $items = array();
             foreach ($row as $value) {
+                if ($value) {
+                    $value = $this->replaceTablePrefix($value);
+                }                
                 $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($value) . "'";
             }
 
