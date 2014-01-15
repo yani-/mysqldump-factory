@@ -81,21 +81,36 @@ interface MysqlDumpInterface
      * @return string
      */
     public function getFileName();
-    
+
     /**
-     * Set table prefix
+     * Set old table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpInterface
+     * @return MysqlDumpSQL
      */
-    public function setTablePrefix($prefix);
-    
+    public function setOldTablePrefix($prefix);
+
     /**
-     * Get table prefix
+     * Get old table prefix
      *
      * @return string
      */
-    public function getTablePrefix();    
+    public function getOldTablePrefix();
+
+    /**
+     * Set new table prefix
+     *
+     * @param  string $prefix Name of the table prefix
+     * @return MysqlDumpSQL
+     */
+    public function setNewTablePrefix($prefix);
+
+    /**
+     * Get new table prefix
+     *
+     * @return string
+     */
+    public function getNewTablePrefix();
 
     /**
      * Set query clauses

@@ -66,8 +66,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
     protected $queryAdapter     = null;
 
     protected $connection       = null;
-    
-    protected $tablePrefix      = null;    
+
+    protected $oldTablePrefix   = null;
+
+    protected $newTablePrefix   = null;
 
     protected $queryClauses     = array();
 
@@ -163,26 +165,49 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
-     * Set table prefix
+     * Set old table prefix
      *
      * @param  string $prefix Name of the table prefix
-     * @return MysqlDumpPDO
+     * @return MysqlDumpSQL
      */
-    public function setTablePrefix($prefix)
+    public function setOldTablePrefix($prefix)
     {
-        $this->tablePrefix = $prefix;
+        $this->oldTablePrefix = $prefix;
 
         return $this;
     }
 
     /**
-     * Get table prefix
+     * Get old table prefix
      *
      * @return string
      */
-    public function getTablePrefix()
+    public function getOldTablePrefix()
     {
-        return $this->tablePrefix;
+        return $this->oldTablePrefix;
+    }
+
+    /**
+     * Set new table prefix
+     *
+     * @param  string $prefix Name of the table prefix
+     * @return MysqlDumpSQL
+     */
+    public function setNewTablePrefix($prefix)
+    {
+        $this->newTablePrefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get new table prefix
+     *
+     * @return string
+     */
+    public function getNewTablePrefix()
+    {
+        return $this->newTablePrefix;
     }
 
     /**
