@@ -188,6 +188,29 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
+     * Set new table prefix
+     *
+     * @param  string $prefix Name of the table prefix
+     * @return MysqlDumpSQL
+     */
+    public function setNewTablePrefix($prefix)
+    {
+        $this->newTablePrefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get new table prefix
+     *
+     * @return string
+     */
+    public function getNewTablePrefix()
+    {
+        return $this->newTablePrefix;
+    }
+
+    /**
      * Set query clauses
      *
      * @param  array $clauses List of SQL query clauses
