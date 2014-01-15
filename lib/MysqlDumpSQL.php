@@ -531,12 +531,15 @@ class MysqlDumpSQL implements MysqlDumpInterface
             foreach ($row as $value) {
                 $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($value) . "'";
             }
+            
+            // Replace items prefix
+            $replaceItemsPrefix = $this->replaceTablePrefix($items, false);            
 
             if ($insertFirst || !$this->getExtendedInsert()) {
-                $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $items) . ')');
+                $lineSize += $this->fileAdapter->write("INSERT INTO `$tableName` VALUES (" . implode(',', $replaceItemsPrefix) . ')');
                 $insertFirst = false;
             } else {
-                $lineSize += $this->fileAdapter->write(',(' . implode(',', $items) . ')');
+                $lineSize += $this->fileAdapter->write(',(' . implode(',', $replaceItemsPrefix) . ')');
             }
 
             if (($lineSize > MysqlDumpInterface::MAXLINESIZE) || !$this->getExtendedInsert()) {
