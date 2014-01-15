@@ -378,7 +378,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
             // Read database file line by line
             while (($line = fgets($fileHandler)) !== false) {
                 // Replace table prefix
-                $line = $this->replaceTablePrefix($line);
+                $line = $this->replaceTablePrefix($line, false);
 
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {

@@ -473,7 +473,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_assoc($result)) {
             if (isset($row['Create Table'])) {
                 // Replace table prefix
-                $tableName = $this->replaceTablePrefix($tableName);
+                $tableName = $this->replaceTablePrefix($tableName, false);
 
                 $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
