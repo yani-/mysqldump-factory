@@ -437,6 +437,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
                 // Set additional connection attributes
                 $this->connection->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+                $this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
                 // Set default encoding
                 $query = $this->queryAdapter->set_names( 'utf8' );
