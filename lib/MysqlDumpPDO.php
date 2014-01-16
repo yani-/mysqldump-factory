@@ -95,7 +95,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '')
     {
         // Set MySQL credentials
-        $this->hostname = gethostbyname($hostname);
+        $this->hostname = $hostname;
         $this->username = $username;
         $this->password = $password;
         $this->database = $database;
