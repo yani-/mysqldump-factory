@@ -534,8 +534,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
         );
 
         // Generate insert statements
-        $resultSet = $this->getConnection()->query($query, PDO::FETCH_NUM);
-        foreach ($resultSet as $row) {
+        $result = $this->getConnection()->query($query, PDO::FETCH_NUM);
+        foreach ($result as $row) {
             $items = array();
             foreach ($row as $value) {
                 if ($value) {
@@ -557,8 +557,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
             }
         }
 
-        // Close cursor
-        $resultSet->closeCursor();
+        // Close result cursor
+        $result->closeCursor();
 
         if (!$insertFirst) {
             $this->fileAdapter->write(";\n");
