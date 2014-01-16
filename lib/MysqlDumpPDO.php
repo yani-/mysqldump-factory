@@ -448,7 +448,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
     protected function makeConnection($useSocket = true)
     {
         // Use Socket or TCP
-        $hostname = ($use_socket ? $this->hostname : gethostbyname($this->hostname));
+        $hostname = ($useSocket ? $this->hostname : gethostbyname($this->hostname));
 
         // Make connection
         $connection = new PDO(
