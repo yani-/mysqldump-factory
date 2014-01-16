@@ -418,7 +418,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
     /**
      * Get MySQL connection (lazy loading)
      *
-     * @return mixed
+     * @return PDO
      */
     public function getConnection()
     {
@@ -442,9 +442,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
     /**
      * Make MySQL connection
      *
+     * @param  bool $useSocket Use socket or TCP connection
      * @return PDO
      */
-    protected function makeConnection($use_socket = true)
+    protected function makeConnection($useSocket = true)
     {
         // Use Socket or TCP
         $hostname = ($use_socket ? $this->hostname : gethostbyname($this->hostname));
