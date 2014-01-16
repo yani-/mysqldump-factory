@@ -427,7 +427,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
             // Select database and set default encoding
             if ($this->connection) {
                 if (mysql_select_db($this->database, $this->connection)) {
-                    $query = $this->queryAdapter->set_names( 'utf8' );
+                    $query = $this->queryAdapter->set_names('utf8');
                     mysql_query($query, $this->connection);
                 } else {
                     throw new Exception('Could not select MySQL database: ' . mysql_error($this->connection));
