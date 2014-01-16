@@ -416,38 +416,60 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
-     * Create MySQL connection (lazy loading)
+     * Get MySQL connection (lazy loading)
      *
-     * @return mixed
+     * @return PDO
      */
     public function getConnection()
     {
         if ($this->connection === null) {
             try {
-                // Make connection
-                $this->connection = new PDO(
-                    sprintf('mysql:host=%s;dbname=%s', $this->hostname, $this->database),
-                    $this->username,
-                    $this->password,
-                    array(
-                        PDO::ATTR_PERSISTENT => true,
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                    )
-                );
-
-                // Set additional connection attributes
-                $this->connection->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
-                $this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-
-                // Set default encoding
-                $query = $this->queryAdapter->set_names( 'utf8' );
-                $this->connection->exec($query);
-            } catch (PDOException $e) {
-                throw new Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
+                // Make connection (Socket)
+                $this->connection = $this->makeConnection();
+            } catch (Exception $e) {
+                try {
+                    // Make connection (TCP)
+                    $this->connection = $this->makeConnection(false);
+                } catch (Exception $e) {
+                    throw new Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
+                }
             }
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Make MySQL connection
+     *
+     * @param  bool $useSocket Use socket or TCP connection
+     * @return PDO
+     */
+    protected function makeConnection($useSocket = true)
+    {
+        // Use Socket or TCP
+        $hostname = ($use_socket ? $this->hostname : gethostbyname($this->hostname));
+
+        // Make connection
+        $connection = new PDO(
+            sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database),
+            $this->username,
+            $this->password,
+            array(
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            )
+        );
+
+        // Set additional connection attributes
+        $connection->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+        $connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+
+        // Set default encoding
+        $query = $this->queryAdapter->set_names('utf8');
+        $connection->exec($query);
+
+        return $connection;
     }
 
     /**

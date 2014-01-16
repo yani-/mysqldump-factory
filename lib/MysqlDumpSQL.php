@@ -414,30 +414,55 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
-     * Create MySQL connection (lazy loading)
+     * Get MySQL connection (lazy loading)
      *
-     * @return mixed
+     * @return resource
      */
     protected function getConnection()
     {
         if ($this->connection === null) {
-            // Make connection
-            $this->connection = mysql_pconnect($this->hostname, $this->username, $this->password);
+            // Make connection (Socket)
+            $this->connection = $this->makeConnection();
 
-            // Select database and set default encoding
-            if ($this->connection) {
-                if (mysql_select_db($this->database, $this->connection)) {
-                    $query = $this->queryAdapter->set_names( 'utf8' );
-                    mysql_query($query, $this->connection);
-                } else {
-                    throw new Exception('Could not select MySQL database: ' . mysql_error($this->connection));
+            if ($this->connection === false) {
+                // Make connection (TCP)
+                $this->connection = $this->makeConnection(false);
+
+                // Unable to connect to MySQL database server
+                if ($this->connection === false) {
+                    throw new Exception('Unable to connect to MySQL database server: ' . mysql_error($this->connection));
                 }
-            } else {
-                throw new Exception('Unable to connect to MySQL database server: ' . mysql_error($this->connection));
             }
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Make MySQL connection
+     *
+     * @param  bool $useSocket Use socket or TCP connection
+     * @return resource
+     */
+    protected function makeConnection($useSocket = true)
+    {
+        // Use Socket or TCP
+        $hostname = ($use_socket ? $this->hostname : gethostbyname($this->hostname));
+
+        // Make connection
+        $connection = mysql_pconnect($hostname, $this->username, $this->password);
+
+        // Select database and set default encoding
+        if ($connection) {
+            if (mysql_select_db($this->database, $connection)) {
+                $query = $this->queryAdapter->set_names('utf8');
+                mysql_query($query, $connection);
+            } else {
+                throw new Exception('Could not select MySQL database: ' . mysql_error($connection));
+            }
+        }
+
+        return $connection;
     }
 
     /**
