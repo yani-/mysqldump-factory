@@ -437,6 +437,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
                 // Set additional connection attributes
                 $this->connection->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+                $this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
                 // Set default encoding
                 $query = $this->queryAdapter->set_names( 'utf8' );
@@ -533,7 +534,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
         );
 
         // Generate insert statements
-        foreach ($this->getConnection()->query($query, PDO::FETCH_NUM) as $row) {
+        $result = $this->getConnection()->query($query, PDO::FETCH_NUM);
+        foreach ($result as $row) {
             $items = array();
             foreach ($row as $value) {
                 if ($value) {
@@ -554,6 +556,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
                 $lineSize = $this->fileAdapter->write(";\n");
             }
         }
+
+        // Close result cursor
+        $result->closeCursor();
 
         if (!$insertFirst) {
             $this->fileAdapter->write(";\n");
