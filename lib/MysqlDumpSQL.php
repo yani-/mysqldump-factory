@@ -450,7 +450,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         $hostname = ($useSocket ? $this->hostname : gethostbyname($this->hostname));
 
         // Make connection
-        $connection = mysql_pconnect($hostname, $this->username, $this->password);
+        $connection = @mysql_pconnect($hostname, $this->username, $this->password);
 
         // Select database and set default encoding
         if ($connection) {
