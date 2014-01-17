@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.7
+ * @version   GIT: 1.0.8
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -46,7 +46,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.7
+ * @version   GIT: 1.0.8
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpSQL implements MysqlDumpInterface
@@ -357,9 +357,12 @@ class MysqlDumpSQL implements MysqlDumpInterface
     {
         $query = $this->queryAdapter->show_tables($this->database);
         $result = mysql_unbuffered_query($query, $this->getConnection());
+        $_deleteTables = [];
         while ($row = mysql_fetch_assoc($result)) {
             // Drop table
-            $delete = $this->queryAdapter->drop_table($row['table_name']);
+            $_deleteTables []= $this->queryAdapter->drop_table($row['table_name']);
+        }
+        foreach ($_deleteTables as $delete) {
             mysql_unbuffered_query($delete, $this->getConnection());
         }
     }
