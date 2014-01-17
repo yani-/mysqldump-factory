@@ -356,11 +356,11 @@ class MysqlDumpSQL implements MysqlDumpInterface
     public function truncateDatabase()
     {
         $query = $this->queryAdapter->show_tables($this->database);
-        $result = mysql_query($query, $this->getConnection());
+        $result = mysql_unbuffered_query($query, $this->getConnection());
         while ($row = mysql_fetch_assoc($result)) {
             // Drop table
             $delete = $this->queryAdapter->drop_table($row['table_name']);
-            mysql_query($delete, $this->getConnection());
+            mysql_unbuffered_query($delete, $this->getConnection());
         }
     }
 
@@ -384,7 +384,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
                     // Run SQL query
-                    $result = mysql_query($query, $this->getConnection());
+                    $result = mysql_unbuffered_query($query, $this->getConnection());
                     if ($result) {
                         $query = null;
                     }
@@ -405,7 +405,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         $tables = array();
 
         $query = $this->queryAdapter->show_tables($this->database);
-        $result = mysql_query($query, $this->getConnection());
+        $result = mysql_unbuffered_query($query, $this->getConnection());
         while ($row = mysql_fetch_assoc($result)) {
             $tables[] = $row['table_name'];
         }
@@ -456,7 +456,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         if ($connection) {
             if (mysql_select_db($this->database, $connection)) {
                 $query = $this->queryAdapter->set_names('utf8');
-                mysql_query($query, $connection);
+                mysql_unbuffered_query($query, $connection);
             } else {
                 throw new Exception('Could not select MySQL database: ' . mysql_error($connection));
             }
@@ -494,7 +494,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
     protected function getTableStructure($tableName)
     {
         $query = $this->queryAdapter->show_create_table($tableName);
-        $result = mysql_query($query, $this->getConnection());
+        $result = mysql_unbuffered_query($query, $this->getConnection());
         while ($row = mysql_fetch_assoc($result)) {
             if (isset($row['Create Table'])) {
                 // Replace table prefix
@@ -550,7 +550,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         );
 
         // Generate insert statements
-        $result = mysql_query($query, $this->getConnection());
+        $result = mysql_unbuffered_query($query, $this->getConnection());
         while ($row = mysql_fetch_row($result)) {
             $items = array();
             foreach ($row as $value) {
