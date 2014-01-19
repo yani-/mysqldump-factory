@@ -360,7 +360,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         $_deleteTables = array();
         while ($row = mysql_fetch_assoc($result)) {
             // Drop table
-            $_deleteTables []= $this->queryAdapter->drop_table($row['table_name']);
+            $_deleteTables[] = $this->queryAdapter->drop_table($row['table_name']);
         }
         foreach ($_deleteTables as $delete) {
             mysql_unbuffered_query($delete, $this->getConnection());
