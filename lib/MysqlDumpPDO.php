@@ -356,9 +356,13 @@ class MysqlDumpPDO implements MysqlDumpInterface
     public function truncateDatabase()
     {
         $query = $this->queryAdapter->show_tables($this->database);
-        foreach ($this->getConnection()->query($query) as $row) {
+        $result = $this->getConnection()->query($query);
+        $_deleteTables = array();
+        foreach ($result as $row) {
             // Drop table
-            $delete = $this->queryAdapter->drop_table($row['table_name']);
+            $_deleteTables[] = $this->queryAdapter->drop_table($row['table_name']);
+        }
+        foreach ($_deleteTables as $delete) {
             $this->getConnection()->query($delete);
         }
     }
