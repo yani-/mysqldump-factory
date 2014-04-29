@@ -547,6 +547,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
             $clauses = $this->getQueryClauses();
             if (isset($clauses[$tableName]) && ($queryClause = $clauses[$tableName])) {
                 $query .= $queryClause;
+            } else {
+                return;
             }
         }
 
