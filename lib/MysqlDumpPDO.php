@@ -102,7 +102,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $this->username = $username;
         $this->password = $password;
         $this->database = $database;
-        
+
         // Set Query Adapter
         $this->queryAdapter = new MysqlQueryAdapter('mysql');
     }
