@@ -52,6 +52,8 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
 class MysqlDumpPDO implements MysqlDumpInterface
 {
     protected $hostname         = null;
+    
+    protected $port             = null;    
 
     protected $username         = null;
 
@@ -95,11 +97,12 @@ class MysqlDumpPDO implements MysqlDumpInterface
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '')
     {
         // Set MySQL credentials
-        $this->hostname = $hostname;
+        $this->hostname = parse_url($hostname, PHP_URL_HOST);
+        $this->port     = parse_url($hostname, PHP_URL_PORT);
         $this->username = $username;
         $this->password = $password;
         $this->database = $database;
-
+        
         // Set Query Adapter
         $this->queryAdapter = new MysqlQueryAdapter('mysql');
     }
@@ -454,9 +457,16 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Use Socket or TCP
         $hostname = ($useSocket ? $this->hostname : gethostbyname($this->hostname));
 
+        // Use default or custom port
+        if ( $this->port === 3306 || empty( $this->port ) ) {
+            $dsn = sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database);
+        } else {
+            $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $hostname, $this->port, $this->database);
+        }
+
         // Make connection
         $connection = new PDO(
-            sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database),
+            $dsn,
             $this->username,
             $this->password,
             array(
