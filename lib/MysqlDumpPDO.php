@@ -465,7 +465,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Use default or custom port
         if ($this->port === 3306 || empty($this->port)) {
             $dsn = sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database);
-        else if (!empty($this->socket)) {
+        } else if (!empty($this->socket)) {
             $dsn = sprintf('mysql:host=%s;unix_socket=%s;dbname=%s', $hostname, $this->socket, $this->database);
         } else {
             $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $hostname, $this->port, $this->database);
