@@ -637,7 +637,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $data = explode(':', $input);
 
         return array(
-            'host'   => (isset($data[0]) $data[0] : 'localhost'),
+            'host'   => (empty($data[0]) ? 'localhost' : $data[0]),
             'port'   => (is_numeric($data[1]) ? intval($data[1]) : null),
             'socket' => (is_numeric($data[1]) ? null : $data[1]),
         );
