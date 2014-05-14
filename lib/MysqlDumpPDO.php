@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.10
+ * @version   GIT: 1.1.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -46,7 +46,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.10
+ * @version   GIT: 1.1.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -465,7 +465,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Use default or custom port
         if ($this->port === 3306 || empty($this->port)) {
             $dsn = sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database);
-        else if (!empty($this->socket)) {
+        } else if (!empty($this->socket)) {
             $dsn = sprintf('mysql:host=%s;unix_socket=%s;dbname=%s', $hostname, $this->socket, $this->database);
         } else {
             $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $hostname, $this->port, $this->database);
