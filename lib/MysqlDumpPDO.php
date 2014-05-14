@@ -55,6 +55,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
     protected $port             = null;
 
+    protected $socket           = null;
+
     protected $username         = null;
 
     protected $password         = null;
@@ -101,6 +103,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Set MySQL credentials
         $this->hostname = $dsn['host'];
         $this->port     = $dsn['port'];
+        $this->socket   = $dsn['socket'];
         $this->username = $username;
         $this->password = $password;
         $this->database = $database;
@@ -462,6 +465,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Use default or custom port
         if ($this->port === 3306 || empty($this->port)) {
             $dsn = sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database);
+        else if (!empty($this->socket)) {
+            $dsn = sprintf('mysql:host=%s;unix_socket=%s;dbname=%s', $hostname, $this->socket, $this->database);
         } else {
             $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $hostname, $this->port, $this->database);
         }
@@ -626,14 +631,15 @@ class MysqlDumpPDO implements MysqlDumpInterface
      * Parse data source name
      *
      * @param  string $input Data source name
-     * @return array         Host and port
+     * @return array         List of host, port and socket
      */
     protected function parseDSN($input) {
         $data = explode(':', $input);
 
         return array(
-            'host' => $data[0],
-            'port' => (isset($data[1]) ? intval($data[1]) : null),
+            'host'   => (isset($data[0]) $data[0] : 'localhost'),
+            'port'   => (is_numeric($data[1]) ? intval($data[1]) : null),
+            'socket' => (is_numeric($data[1]) ? null : $data[1]),
         );
     }
 }
