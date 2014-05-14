@@ -53,6 +53,8 @@ class MysqlDumpPDO implements MysqlDumpInterface
 {
     protected $hostname         = null;
 
+    protected $port             = null;
+
     protected $username         = null;
 
     protected $password         = null;
@@ -94,8 +96,11 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '')
     {
+        $dsn = $this->parseDSN($hostname);
+
         // Set MySQL credentials
-        $this->hostname = $hostname;
+        $this->hostname = $dsn['host'];
+        $this->port     = $dsn['port'];
         $this->username = $username;
         $this->password = $password;
         $this->database = $database;
@@ -454,9 +459,16 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Use Socket or TCP
         $hostname = ($useSocket ? $this->hostname : gethostbyname($this->hostname));
 
+        // Use default or custom port
+        if ($this->port === 3306 || empty($this->port)) {
+            $dsn = sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database);
+        } else {
+            $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', $hostname, $this->port, $this->database);
+        }
+
         // Make connection
         $connection = new PDO(
-            sprintf('mysql:host=%s;dbname=%s', $hostname, $this->database),
+            $dsn,
             $this->username,
             $this->password,
             array(
@@ -608,5 +620,20 @@ class MysqlDumpPDO implements MysqlDumpInterface
         } else {
             return preg_replace('/' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
         }
+    }
+
+    /**
+     * Parse data source name
+     *
+     * @param  string $input Data source name
+     * @return array         Host and port
+     */
+    protected function parseDSN($input) {
+        $data = explode(':', $input);
+
+        return array(
+            'host' => $data[0],
+            'port' => (isset($data[1]) ? intval($data[1]) : null),
+        );
     }
 }
