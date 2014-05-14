@@ -636,10 +636,26 @@ class MysqlDumpPDO implements MysqlDumpInterface
     protected function parseDSN($input) {
         $data = explode(':', $input);
 
+        // Set hostname
+        $host = 'localhost';
+        if (!empty($data[0])) {
+            $host = $data[0];
+        }
+
+        // Set port and socket
+        $port = $socket = null;
+        if (!empty($data[1])) {
+            if (is_numeric($data[1])) {
+                $port = $data[1];
+            } else {
+                $socket = $data[1];
+            }
+        }
+
         return array(
-            'host'   => (empty($data[0]) ? 'localhost' : $data[0]),
-            'port'   => (is_numeric($data[1]) ? intval($data[1]) : null),
-            'socket' => (is_numeric($data[1]) ? null : $data[1]),
+            'host'   => $host,
+            'port'   => $port,
+            'socket' => $socket,
         );
     }
 }
