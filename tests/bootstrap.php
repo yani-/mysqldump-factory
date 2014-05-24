@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Provides unit tests for MysqlDumpFactory
+ * Bootstrap file for unit tests used in MysqlDumpFactory
  *
  * PHP version 5
  *
@@ -29,44 +29,11 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
+ * @version   GIT: 1.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
-
-/**
- * Unit test class
- *
- * @category  Tests
- * @package   MysqlDumpFactory
- * @author    Yani Iliev <yani@iliev.me>
- * @author    Bobby Angelov <bobby@servmask.com>
- * @copyright 2014 Yani Iliev, Bobby Angelov
- * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.0.1
- * @link      https://github.com/yani-/mysqldump-factory/
- */
-class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
-{
-    /**
-     * [testMakeMysqlDumpCreatePDO description]
-     * @return [type] [description]
-     */
-    public function testMakeMysqlDumpCreatePDO()
-    {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump('', '', '', '', true) instanceof MysqlDumpPDO
-        );
-    }
-
-    /**
-     * [testMakeMysqlDumpCreateSQL description]
-     * @return [type] [description]
-     */
-    public function testMakeMysqlDumpCreateSQL()
-    {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump() instanceof MysqlDumpSQL
-        );
-    }
-}
-
+require_once
+    dirname(__FILE__) .
+    DIRECTORY_SEPARATOR . '..' .
+    DIRECTORY_SEPARATOR . 'lib' .
+    DIRECTORY_SEPARATOR . 'MysqlDumpFactory.php';
