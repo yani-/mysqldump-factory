@@ -381,8 +381,11 @@ class MysqlDumpSQL implements MysqlDumpInterface
 
             // Read database file line by line
             while (($line = fgets($fileHandler)) !== false) {
-                // Replace table prefix
-                $line = $this->replaceTablePrefix($line, false);
+                // Replace create table prefix
+                $line = $this->replaceCreateTablePrefix($line);
+
+                // Replace insert into prefix
+                $line = $this->replaceInsertIntoPrefix($line);
 
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
@@ -590,7 +593,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * @param  string $sql SQL statements
      * @return string
      */
-    protected function replaceCreateTablePrefix($sql) {
+    public function replaceCreateTablePrefix($sql) {
         $pattern = '/^CREATE TABLE `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
         $replace = 'CREATE TABLE `' . $this->getNewTablePrefix() . '\2`';
 
@@ -603,7 +606,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * @param  string $sql SQL statements
      * @return string
      */
-    protected function replaceInsertIntoPrefix($sql) {
+    public function replaceInsertIntoPrefix($sql) {
         $pattern = '/^INSERT INTO `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
         $replace = 'INSERT INTO `' . $this->getNewTablePrefix() . '\2`';
 
@@ -616,7 +619,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      * @param  string $sql SQL statements
      * @return string
      */
-    protected function stripTableConstraints($sql) {
+    public function stripTableConstraints($sql) {
 
     }
 }

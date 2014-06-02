@@ -100,13 +100,9 @@ class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
         fputs($fp, $sql);
         rewind($fp);
 
-        $class = new ReflectionClass($adapter);
-        $method = $class->getMethod('replaceCreateTablePrefix');
-        $method->setAccessible(true);
-
         $result = null;
         while ($line = fgets($fp)) {
-            $result .= $method->invokeArgs($adapter, array($line));
+            $result .= $adapter->replaceCreateTablePrefix($line);
         }
 
         $sql = 'CREATE TABLE `SERVMASK_PREFIX_test` (
