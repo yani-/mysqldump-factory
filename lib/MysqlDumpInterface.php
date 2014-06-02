@@ -47,7 +47,7 @@
  */
 interface MysqlDumpInterface
 {
-    const MAXLINESIZE = 1000000;
+    const MAXLINESIZE = 200000;
 
     /**
      * Define MySQL credentials for the current connection
@@ -203,11 +203,11 @@ interface MysqlDumpInterface
     public function getExtendedInsert();
 
     /**
-     * Truncate database
+     * Flush database
      *
      * @return void
      */
-    public function truncateDatabase();
+    public function flush();
 
     /**
      * Import database from file

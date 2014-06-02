@@ -68,5 +68,57 @@ class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
             MysqlDumpFactory::makeMysqlDump() instanceof MysqlDumpSQL
         );
     }
+
+    /**
+     * [testCreateTablePrefixPDO description]
+     * @return [type] [description]
+     */
+    public function testCreateTablePrefixPDO()
+    {
+    }
+
+    /**
+     * [testCreateTablePrefixSQL description]
+     * @return [type] [description]
+     */
+    public function testCreateTablePrefixSQL()
+    {
+        $adapter = MysqlDumpFactory::makeMysqlDump();
+        $adapter->setOldTablePrefix('blog_');
+        $adapter->setNewTablePrefix('SERVMASK_PREFIX_');
+
+        $sql = 'CREATE TABLE `blog_test` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `post_id` bigint(20) unsigned NOT NULL,
+                    `ddd` varchar(20) NOT NULL,
+                    PRIMARY KEY (`id`),
+                    KEY `post_id` (`post_id`),
+                    CONSTRAINT `wp_test_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `wp_posts` (`ID`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1';
+
+        $fp = fopen("php://memory", 'r+');
+        fputs($fp, $sql);
+        rewind($fp);
+
+        $class = new ReflectionClass($adapter);
+        $method = $class->getMethod('replaceCreateTablePrefix');
+        $method->setAccessible(true);
+
+        $result = null;
+        while ($line = fgets($fp)) {
+            $result .= $method->invokeArgs($adapter, array($line));
+        }
+
+        $sql = 'CREATE TABLE `SERVMASK_PREFIX_test` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `post_id` bigint(20) unsigned NOT NULL,
+                    `ddd` varchar(20) NOT NULL,
+                    PRIMARY KEY (`id`),
+                    KEY `post_id` (`post_id`),
+                    CONSTRAINT `wp_test_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `wp_posts` (`ID`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=latin1';
+
+        $this->assertEquals($sql, $result);
+    }
 }
 

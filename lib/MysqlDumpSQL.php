@@ -349,20 +349,20 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
-     * Truncate database
+     * Flush database
      *
      * @return void
      */
-    public function truncateDatabase()
+    public function flush()
     {
         $query = $this->queryAdapter->show_tables($this->database);
         $result = mysql_unbuffered_query($query, $this->getConnection());
-        $_deleteTables = array();
+        $deleteTables = array();
         while ($row = mysql_fetch_assoc($result)) {
             // Drop table
-            $_deleteTables[] = $this->queryAdapter->drop_table($row['table_name']);
+            $deleteTables[] = $this->queryAdapter->drop_table($row['table_name']);
         }
-        foreach ($_deleteTables as $delete) {
+        foreach ($deleteTables as $delete) {
             mysql_unbuffered_query($delete, $this->getConnection());
         }
     }
@@ -585,18 +585,38 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
-     * Replace table prefix (old to new one)
+     * Replace create table prefix
      *
-     * @param  string $tableName Name of table
-     * @param  bool   $start     Match start of string, or start of line
+     * @param  string $sql SQL statements
      * @return string
      */
-    protected function replaceTablePrefix($tableName, $start = true) {
-        $pattern = preg_quote($this->getOldTablePrefix(), '/');
-        if ($start) {
-            return preg_replace('/^' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
-        } else {
-            return preg_replace('/' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
-        }
+    protected function replaceCreateTablePrefix($sql) {
+        $pattern = '/^CREATE TABLE `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
+        $replace = 'CREATE TABLE `' . $this->getNewTablePrefix() . '\2`';
+
+        return preg_replace($pattern, $replace, $sql);
+    }
+
+    /**
+     * Replace insert into prefix
+     *
+     * @param  string $sql SQL statements
+     * @return string
+     */
+    protected function replaceInsertIntoPrefix($sql) {
+        $pattern = '/^INSERT INTO `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
+        $replace = 'INSERT INTO `' . $this->getNewTablePrefix() . '\2`';
+
+        return preg_replace($pattern, $replace, $sql);
+    }
+
+    /**
+     * Strip table constraints
+     *
+     * @param  string $sql SQL statements
+     * @return string
+     */
+    protected function stripTableConstraints($sql) {
+
     }
 }
