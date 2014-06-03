@@ -588,38 +588,52 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
-     * Replace create table prefix
+     * Replace table name prefix
      *
-     * @param  string $sql SQL statements
+     * @param  string $input Table name
      * @return string
      */
-    public function replaceCreateTablePrefix($sql) {
-        $pattern = '/^CREATE TABLE `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
+    public function replaceTableNamePrefix($input) {
+        $pattern = '/^(' . $this->getOldTablePrefix() . ')(.+)/i';
+        $replace = $this->getNewTablePrefix() . '\2';
+
+        return preg_replace($pattern, $replace, $input);
+    }
+
+
+    /**
+     * Replace create table prefix
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function replaceCreateTablePrefix($input) {
+        $pattern = '/^CREATE TABLE `(' . $this->getOldTablePrefix() . ')(.+)`/Ui';
         $replace = 'CREATE TABLE `' . $this->getNewTablePrefix() . '\2`';
 
-        return preg_replace($pattern, $replace, $sql);
+        return preg_replace($pattern, $replace, $input);
     }
 
     /**
      * Replace insert into prefix
      *
-     * @param  string $sql SQL statements
+     * @param  string $input SQL statement
      * @return string
      */
-    public function replaceInsertIntoPrefix($sql) {
-        $pattern = '/^INSERT INTO `(' . $this->getOldTablePrefix() . ')(.+?)`/i';
+    public function replaceInsertIntoPrefix($input) {
+        $pattern = '/^INSERT INTO `(' . $this->getOldTablePrefix() . ')(.+)`/Ui';
         $replace = 'INSERT INTO `' . $this->getNewTablePrefix() . '\2`';
 
-        return preg_replace($pattern, $replace, $sql);
+        return preg_replace($pattern, $replace, $input);
     }
 
     /**
      * Strip table constraints
      *
-     * @param  string $sql SQL statements
+     * @param  string $input SQL statement
      * @return string
      */
-    public function stripTableConstraints($sql) {
+    public function stripTableConstraints($input) {
 
     }
 }

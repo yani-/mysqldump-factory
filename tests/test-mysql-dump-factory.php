@@ -73,15 +73,30 @@ class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
      * [testCreateTablePrefixPDO description]
      * @return [type] [description]
      */
-    public function testCreateTablePrefixPDO()
+    public function testReplaceCreateTablePrefixPDO()
     {
+    }
+
+    /**
+     * [replaceTableNamePrefixSQL description]
+     * @return [type] [description]
+     */
+    public function testReplaceTableNamePrefixSQL()
+    {
+        $adapter = MysqlDumpFactory::makeMysqlDump();
+        $adapter->setOldTablePrefix('blog_');
+        $adapter->setNewTablePrefix('SERVMASK_PREFIX_');
+
+        $result = $adapter->replaceTableNamePrefix('blog_test');
+
+        $this->assertEquals('SERVMASK_PREFIX_test', $result);
     }
 
     /**
      * [testCreateTablePrefixSQL description]
      * @return [type] [description]
      */
-    public function testCreateTablePrefixSQL()
+    public function testReplaceCreateTablePrefixSQL()
     {
         $adapter = MysqlDumpFactory::makeMysqlDump();
         $adapter->setOldTablePrefix('blog_');
