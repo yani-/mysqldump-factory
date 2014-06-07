@@ -24,7 +24,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @category  Tests
- * @package   MysqlDumpFactory
+ * @package   MysqlDumpPDO
  * @author    Yani Iliev <yani@iliev.me>
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
@@ -37,7 +37,7 @@
  * Unit test class
  *
  * @category  Tests
- * @package   MysqlDumpFactory
+ * @package   MysqlDumpPDO
  * @author    Yani Iliev <yani@iliev.me>
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
@@ -45,28 +45,37 @@
  * @version   GIT: 1.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
-class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
+class MysqlDumpPDOTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * [testMakeMysqlDumpCreatePDO description]
-     * @return [type] [description]
-     */
-    public function testMakeMysqlDumpCreatePDO()
+    protected $adapter = null;
+
+    protected function setUp()
     {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump('', '', '', '', true) instanceof MysqlDumpPDO
-        );
+        $this->adapter = MysqlDumpFactory::makeMysqlDump('', '', '', '', true);
     }
 
     /**
-     * [testMakeMysqlDumpCreateSQL description]
+     * [replaceTableNamePrefix description]
      * @return [type] [description]
      */
-    public function testMakeMysqlDumpCreateSQL()
+    public function testReplaceTableNamePrefix()
     {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump() instanceof MysqlDumpSQL
-        );
+    }
+
+    /**
+     * [testCreateTablePrefix description]
+     * @return [type] [description]
+     */
+    public function testReplaceCreateTablePrefix()
+    {
+    }
+
+    /**
+     * [testStripTableConstraints description]
+     * @return [type] [description]
+     */
+    public function testStripTableConstraints()
+    {
     }
 }
 
