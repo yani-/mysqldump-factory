@@ -564,7 +564,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_assoc($result)) {
             if (isset($row['Create Table'])) {
                 // Replace table prefix
-                $tableName = $this->replaceTablePrefix($tableName);
+                $tableName = $this->replaceTableNamePrefix($tableName);
 
                 $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
@@ -577,7 +577,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
                 }
 
                 // Replace table prefix
-                $createTable = $this->replaceTablePrefix($row['Create Table'], false);
+                $createTable = $this->replaceCreateTablePrefix($row['Create Table'], false);
 
                 $this->fileAdapter->write($createTable . ";\n\n");
 
@@ -610,7 +610,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         }
 
         // Replace table prefix
-        $tableName = $this->replaceTablePrefix($tableName);
+        $tableName = $this->replaceTableNamePrefix($tableName);
 
         $this->fileAdapter->write(
             "--\n" .
@@ -623,9 +623,6 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_row($result)) {
             $items = array();
             foreach ($row as $value) {
-                if ($value) {
-                    $value = $this->replaceTablePrefix($value);
-                }
                 $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($value) . "'";
             }
 
