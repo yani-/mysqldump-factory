@@ -108,6 +108,31 @@ class MysqlDumpSQLTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * [testReplaceInsertIntoPrefix description]
+     * @return [type] [description]
+     */
+    public function testReplaceInsertIntoPrefix()
+    {
+        $this->adapter->setOldTablePrefix('blog_');
+        $this->adapter->setNewTablePrefix('SERVMASK_PREFIX_');
+
+        $sql = "INSERT INTO `blog_comments` VALUES ('1','1','Mr WordPress','','https://wordpress.org/','','2014-05-09 02:16:16','2014-05-09 02:16:16','Hi, this is a comment.\nTo delete a comment, just log in and view the post&#039;s comments. There you will have the option to edit or delete them.','0','1','','','0','0');";
+
+        $fp = fopen("php://memory", 'r+');
+        fputs($fp, $sql);
+        rewind($fp);
+
+        $result = null;
+        while ($line = fgets($fp)) {
+            $result .= $this->adapter->replaceInsertIntoPrefix($line);
+        }
+
+        $sql = "INSERT INTO `SERVMASK_PREFIX_comments` VALUES ('1','1','Mr WordPress','','https://wordpress.org/','','2014-05-09 02:16:16','2014-05-09 02:16:16','Hi, this is a comment.\nTo delete a comment, just log in and view the post&#039;s comments. There you will have the option to edit or delete them.','0','1','','','0','0');";
+
+        $this->assertEquals($sql, $result);
+    }
+
+    /**
      * [testStripTableConstraints description]
      * @return [type] [description]
      */
