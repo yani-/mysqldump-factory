@@ -105,11 +105,11 @@ class MysqlDumpSQL implements MysqlDumpInterface
     }
 
     /**
-     * Dump database into a file
+     * Export database into a file
      *
      * @return void
      */
-    public function dump()
+    public function export()
     {
         // Set File Adapter
         $this->fileAdapter = new MysqlFileAdapter();
@@ -117,7 +117,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         // Set output file
         $this->fileAdapter->open($this->getFileName());
 
-        // Write Headers Formating dump file
+        // Write Headers Formatting dump file
         $this->fileAdapter->write($this->getHeader());
 
         // Listing all tables from database
@@ -484,7 +484,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      *
      * @return resource
      */
-    protected function getConnection()
+    public function getConnection()
     {
         if ($this->connection === null) {
             // Make connection (Socket)

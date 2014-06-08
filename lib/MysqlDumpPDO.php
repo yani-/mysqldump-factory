@@ -113,11 +113,11 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
-     * Dump database into a file
+     * Export database into a file
      *
      * @return void
      */
-    public function dump()
+    public function export()
     {
         // Set File Adapter
         $this->fileAdapter = new MysqlFileAdapter();
@@ -125,7 +125,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         // Set output file
         $this->fileAdapter->open($this->getFileName());
 
-        // Write Headers Formating dump file
+        // Write Headers Formatting dump file
         $this->fileAdapter->write($this->getHeader());
 
         // Listing all tables from database
@@ -425,6 +425,65 @@ class MysqlDumpPDO implements MysqlDumpInterface
         }
 
         return $tables;
+    }
+
+    /**
+     * Replace table name prefix
+     *
+     * @param  string $input Table name
+     * @return string
+     */
+    public function replaceTableNamePrefix($input)
+    {
+        $pattern = '/^(' . $this->getOldTablePrefix() . ')(.+)/i';
+        $replace = $this->getNewTablePrefix() . '\2';
+
+        return preg_replace($pattern, $replace, $input);
+    }
+
+    /**
+     * Replace create table prefix
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function replaceCreateTablePrefix($input)
+    {
+        $pattern = '/^CREATE TABLE `(' . $this->getOldTablePrefix() . ')(.+)`/Ui';
+        $replace = 'CREATE TABLE `' . $this->getNewTablePrefix() . '\2`';
+
+        return preg_replace($pattern, $replace, $input);
+    }
+
+    /**
+     * Replace insert into prefix
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function replaceInsertIntoPrefix($input)
+    {
+        $pattern = '/^INSERT INTO `(' . $this->getOldTablePrefix() . ')(.+)`/Ui';
+        $replace = 'INSERT INTO `' . $this->getNewTablePrefix() . '\2`';
+
+        return preg_replace($pattern, $replace, $input);
+    }
+
+    /**
+     * Strip table constraints
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function stripTableConstraints($input)
+    {
+        $pattern = array(
+            '/\s+CONSTRAINT(.+),/i',
+            '/,\s+CONSTRAINT(.+)/i',
+        );
+        $replace = '';
+
+        return preg_replace($pattern, $replace, $input);
     }
 
     /**

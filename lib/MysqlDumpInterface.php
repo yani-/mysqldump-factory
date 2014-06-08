@@ -61,11 +61,11 @@ interface MysqlDumpInterface
     public function __construct($hostname = 'localhost', $username = '', $password = '', $database = '');
 
     /**
-     * Dump database into a file
+     * Export database into a file
      *
      * @return void
      */
-    public function dump();
+    public function export();
 
     /**
      * Set output file name
@@ -223,4 +223,43 @@ interface MysqlDumpInterface
      * @return array
      */
     public function listTables();
+
+    /**
+     * Replace table name prefix
+     *
+     * @param  string $input Table name
+     * @return string
+     */
+    public function replaceTableNamePrefix($input);
+
+    /**
+     * Replace create table prefix
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function replaceCreateTablePrefix($input);
+
+    /**
+     * Replace insert into prefix
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function replaceInsertIntoPrefix($input);
+
+    /**
+     * Strip table constraints
+     *
+     * @param  string $input SQL statement
+     * @return string
+     */
+    public function stripTableConstraints($input);
+
+    /**
+     * Get MySQL connection (lazy loading)
+     *
+     * @return resource
+     */
+    public function getConnection();
 }
