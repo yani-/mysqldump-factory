@@ -563,7 +563,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         $result = mysql_unbuffered_query($query, $this->getConnection());
         while ($row = mysql_fetch_assoc($result)) {
             if (isset($row['Create Table'])) {
-                // Replace table prefix
+                // Replace table name prefix
                 $tableName = $this->replaceTableNamePrefix($tableName);
 
                 $this->fileAdapter->write("-- " .
@@ -576,8 +576,11 @@ class MysqlDumpSQL implements MysqlDumpInterface
                     $this->fileAdapter->write("DROP TABLE IF EXISTS `$tableName`;\n\n");
                 }
 
-                // Replace table prefix
+                // Replace create table prefix
                 $createTable = $this->replaceCreateTablePrefix($row['Create Table']);
+
+                // Strip table constraints
+                $createTable = $this->stripTableConstraints($createTable);
 
                 $this->fileAdapter->write($createTable . ";\n\n");
 
@@ -609,7 +612,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
             return;
         }
 
-        // Replace table prefix
+        // Replace table name prefix
         $tableName = $this->replaceTableNamePrefix($tableName);
 
         $this->fileAdapter->write(
