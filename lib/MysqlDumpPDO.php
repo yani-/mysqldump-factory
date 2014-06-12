@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.5.0
+ * @version   GIT: 1.6.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -46,7 +46,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.5.0
+ * @version   GIT: 1.6.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -645,8 +645,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
         );
 
         // Generate insert statements
-        $result = $this->getConnection()->query($query, PDO::FETCH_NUM);
-        foreach ($result as $row) {
+        $result = $this->getConnection()->query($query);
+        $result->setFetchMode(PDO::FETCH_NUM);
+        while ($row = $result->fetch()) {
             $items = array();
             foreach ($row as $value) {
                 $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
