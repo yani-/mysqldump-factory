@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.4.0
+ * @version   GIT: 1.5.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -46,7 +46,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.4.0
+ * @version   GIT: 1.5.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -586,7 +586,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $query = $this->queryAdapter->show_create_table($tableName);
         foreach ($this->getConnection()->query($query) as $row) {
             if (isset($row['Create Table'])) {
-                // Replace table prefix
+                // Replace table name prefix
                 $tableName = $this->replaceTableNamePrefix($tableName);
 
                 $this->fileAdapter->write("-- " .
@@ -599,8 +599,11 @@ class MysqlDumpPDO implements MysqlDumpInterface
                     $this->fileAdapter->write("DROP TABLE IF EXISTS `$tableName`;\n\n");
                 }
 
-                // Replace table prefix
+                // Replace create table prefix
                 $createTable = $this->replaceCreateTablePrefix($row['Create Table']);
+
+                // Strip table constraints
+                $createTable = $this->stripTableConstraints($createTable);
 
                 $this->fileAdapter->write($createTable . ";\n\n");
 
@@ -632,7 +635,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
             return;
         }
 
-        // Replace table prefix
+        // Replace table name prefix
         $tableName = $this->replaceTableNamePrefix($tableName);
 
         $this->fileAdapter->write(
