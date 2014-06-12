@@ -645,8 +645,9 @@ class MysqlDumpPDO implements MysqlDumpInterface
         );
 
         // Generate insert statements
-        $result = $this->getConnection()->query($query, PDO::FETCH_NUM);
-        foreach ($result as $row) {
+        $result = $this->getConnection()->query($query);
+        $result->setFetchMode(PDO::FETCH_NUM);
+        while ($row = $result->fetch()) {
             $items = array();
             foreach ($row as $value) {
                 $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
