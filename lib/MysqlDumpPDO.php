@@ -389,8 +389,11 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
             // Read database file line by line
             while (($line = fgets($fileHandler)) !== false) {
-                // Replace table prefix
-                $line = $this->replaceTablePrefix($line, false);
+                // Replace create table prefix
+                $line = $this->replaceCreateTablePrefix($line);
+
+                // Replace insert into prefix
+                $line = $this->replaceInsertIntoPrefix($line);
 
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
@@ -584,7 +587,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         foreach ($this->getConnection()->query($query) as $row) {
             if (isset($row['Create Table'])) {
                 // Replace table prefix
-                $tableName = $this->replaceTablePrefix($tableName);
+                $tableName = $this->replaceTableNamePrefix($tableName);
 
                 $this->fileAdapter->write("-- " .
                     "--------------------------------------------------------" .
@@ -597,7 +600,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
                 }
 
                 // Replace table prefix
-                $createTable = $this->replaceTablePrefix($row['Create Table'], false);
+                $createTable = $this->replaceCreateTablePrefix($row['Create Table']);
 
                 $this->fileAdapter->write($createTable . ";\n\n");
 
@@ -630,7 +633,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         }
 
         // Replace table prefix
-        $tableName = $this->replaceTablePrefix($tableName);
+        $tableName = $this->replaceTableNamePrefix($tableName);
 
         $this->fileAdapter->write(
             "--\n" .
@@ -643,9 +646,6 @@ class MysqlDumpPDO implements MysqlDumpInterface
         foreach ($result as $row) {
             $items = array();
             foreach ($row as $value) {
-                if ($value) {
-                    $value = $this->replaceTablePrefix($value);
-                }
                 $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
             }
 
@@ -667,22 +667,6 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
         if (!$insertFirst) {
             $this->fileAdapter->write(";\n");
-        }
-    }
-
-    /**
-     * Replace table prefix (old to new one)
-     *
-     * @param  string $tableName Name of table
-     * @param  bool   $start     Match start of string, or start of line
-     * @return string
-     */
-    protected function replaceTablePrefix($tableName, $start = true) {
-        $pattern = preg_quote($this->getOldTablePrefix(), '/');
-        if ($start) {
-            return preg_replace('/^' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
-        } else {
-            return preg_replace('/' . $pattern . '/i', $this->getNewTablePrefix(), $tableName);
         }
     }
 

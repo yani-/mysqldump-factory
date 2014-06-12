@@ -577,7 +577,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
                 }
 
                 // Replace table prefix
-                $createTable = $this->replaceCreateTablePrefix($row['Create Table'], false);
+                $createTable = $this->replaceCreateTablePrefix($row['Create Table']);
 
                 $this->fileAdapter->write($createTable . ";\n\n");
 
