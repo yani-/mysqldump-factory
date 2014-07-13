@@ -755,7 +755,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         while ($row = $result->fetch()) {
             $items = array();
             foreach ($row as $value) {
-                $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
+                $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($this->replaceTableValues($value));
             }
 
             if ($insertFirst || !$this->getExtendedInsert()) {

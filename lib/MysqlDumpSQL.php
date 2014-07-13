@@ -730,7 +730,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
         while ($row = mysql_fetch_row($result)) {
             $items = array();
             foreach ($row as $value) {
-                $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($value) . "'";
+                $items[] = is_null($value) ? 'NULL' : "'" . mysql_real_escape_string($this->replaceTableValues($value)) . "'";
             }
 
             if ($insertFirst || !$this->getExtendedInsert()) {
