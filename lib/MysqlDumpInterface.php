@@ -255,6 +255,14 @@ interface MysqlDumpInterface
     public function listTables();
 
     /**
+     * Replace table values
+     *
+     * @param  string $input Table value
+     * @return string
+     */
+    public function replaceTableValues($input);
+
+    /**
      * Replace table name prefix
      *
      * @param  string $input Table name

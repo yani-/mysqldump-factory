@@ -345,7 +345,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setNoTableData($flag)
     {
-        $this->noTableData = $flag;
+        $this->noTableData = (bool) $flag;
 
         return $this;
     }
@@ -391,7 +391,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setExtendedInsert($flag)
     {
-        $this->extendedInsert = $flag;
+        $this->extendedInsert = (bool) $flag;
 
         return $this;
     }
@@ -481,6 +481,37 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
+     * Replace table values
+     *
+     * @param  string $input Table value
+     * @return string
+     */
+    public function replaceTableValues($input)
+    {
+        $old = $this->getOldReplaceValues();
+        $new = $this->getNewReplaceValues();
+
+        $oldValues = array();
+        $newValues = array();
+
+        for ($i = 0; $i < count($old); $i++) {
+            if (!empty($old[$i]) && $old[$i] != $new[$i] && !in_array($old[$i], $oldValues)) {
+                $oldValues[] = $old[$i];
+                $newValues[] = $new[$i];
+            }
+        }
+
+        // Replace strings
+        $input = str_replace($oldValues, $newValues, $input);
+
+        // Verify serialization
+        return  $this->pregReplace(
+            $input,
+            '/s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");/'
+        );
+    }
+
+    /**
      * Replace table name prefix
      *
      * @param  string $input Table name
@@ -561,6 +592,30 @@ class MysqlDumpPDO implements MysqlDumpInterface
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Unescape to avoid dump-text issues
+     *
+     * @param  string $input Text
+     * @return string
+     */
+    public static function unescapeMySQL($input) {
+        return str_replace(
+            array('\\\\', '\\0', "\\n", "\\r", '\Z', "\'", '\"'),
+            array('\\', '\0', "\n", "\r", "\x1a", "'", '"'),
+            $input
+        );
+    }
+
+    /**
+     * Fix strange behaviour if you have escaped quotes in your replacement
+     *
+     * @param  string $input Text
+     * @return string
+     */
+    public static function unescapeQuotes($input) {
+        return str_replace('\"', '"', $input);
     }
 
     /**
@@ -754,5 +809,31 @@ class MysqlDumpPDO implements MysqlDumpInterface
             'port'   => $port,
             'socket' => $socket,
         );
+    }
+
+    /**
+     * Find and replace input with pattern
+     *
+     * @param  string $input   Value
+     * @param  string $pattern Pattern
+     * @return string
+     */
+    protected function pregReplace($input, $pattern) {
+        // PHP doesn't garbage collect functions created by create_function()
+        static $callback = null;
+
+        if ($callback === null) {
+            $callback = create_function(
+                '$matches',
+                "return isset(\$matches[3]) ? 's:' .
+                    strlen(self::unescapeMySQL(\$matches[3])) .
+                    ':\"' .
+                    self::unescapeQuotes(\$matches[3]) .
+                    '\";' : \$matches[0];
+                "
+            );
+        }
+
+        return preg_replace_callback($pattern, $callback, $input);
     }
 }

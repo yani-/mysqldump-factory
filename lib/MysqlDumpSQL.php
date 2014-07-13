@@ -469,6 +469,15 @@ class MysqlDumpSQL implements MysqlDumpInterface
         return $tables;
     }
 
+    /**
+     * Replace table values
+     *
+     * @param  string $input Table value
+     * @return string
+     */
+    public function replaceTableValues($input)
+    {
+    }
 
     /**
      * Replace table name prefix
