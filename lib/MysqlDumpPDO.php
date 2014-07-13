@@ -369,7 +369,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setAddDropTable($flag)
     {
-        $this->addDropTable = $flag;
+        $this->addDropTable = (bool) $flag;
 
         return $this;
     }

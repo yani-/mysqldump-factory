@@ -338,7 +338,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function setNoTableData($flag)
     {
-        $this->noTableData = $flag;
+        $this->noTableData = (bool) $flag;
 
         return $this;
     }
@@ -361,7 +361,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function setAddDropTable($flag)
     {
-        $this->addDropTable = $flag;
+        $this->addDropTable = (bool) $flag;
 
         return $this;
     }
@@ -384,7 +384,7 @@ class MysqlDumpSQL implements MysqlDumpInterface
      */
     public function setExtendedInsert($flag)
     {
-        $this->extendedInsert = $flag;
+        $this->extendedInsert = (bool) $flag;
 
         return $this;
     }
