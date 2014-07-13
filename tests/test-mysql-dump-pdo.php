@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.6.0
+ * @version   GIT: 1.7.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -42,7 +42,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.6.0
+ * @version   GIT: 1.7.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDOTest extends PHPUnit_Framework_TestCase
@@ -52,6 +52,22 @@ class MysqlDumpPDOTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->adapter = MysqlDumpFactory::makeMysqlDump('', '', '', '', true);
+    }
+
+    /**
+     * [replaceTableValues description]
+     * @return [type] [description]
+     */
+    public function testReplaceTableValues()
+    {
+        $this->adapter->setOldReplaceValues(array('old'));
+        $this->adapter->setNewReplaceValues(array('new string here'));
+
+        $input = serialize('value old');
+
+        $result = $this->adapter->replaceTableValues($input);
+
+        $this->assertEquals(serialize('value new string here'), $result);
     }
 
     /**

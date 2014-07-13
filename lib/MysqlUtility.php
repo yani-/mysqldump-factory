@@ -2,7 +2,7 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * Provides unit tests for MysqlDumpFactory
+ * Utility class file
  *
  * PHP version 5
  *
@@ -23,7 +23,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * @category  Tests
+ * @category  Databases
  * @package   MysqlDumpFactory
  * @author    Yani Iliev <yani@iliev.me>
  * @author    Bobby Angelov <bobby@servmask.com>
@@ -34,9 +34,9 @@
  */
 
 /**
- * Unit test class
+ * Utility class
  *
- * @category  Tests
+ * @category  Databases
  * @package   MysqlDumpFactory
  * @author    Yani Iliev <yani@iliev.me>
  * @author    Bobby Angelov <bobby@servmask.com>
@@ -45,28 +45,55 @@
  * @version   GIT: 1.7.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
-class MysqlDumpFactoryTest extends PHPUnit_Framework_TestCase
+class MysqlUtility
 {
     /**
-     * [testMakeMysqlDumpCreatePDO description]
-     * @return [type] [description]
+     * Find and replace input with pattern
+     *
+     * @param  string $input   Value
+     * @param  string $pattern Pattern
+     * @return string
      */
-    public function testMakeMysqlDumpCreatePDO()
-    {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump('', '', '', '', true) instanceof MysqlDumpPDO
+    public static function pregReplace($input, $pattern) {
+        // PHP doesn't garbage collect functions created by create_function()
+        static $callback = null;
+
+        if ($callback === null) {
+            $callback = create_function(
+                '$matches',
+                "return isset(\$matches[3]) ? 's:' .
+                    strlen(MysqlUtility::unescapeMysql(\$matches[3])) .
+                    ':\"' .
+                    MysqlUtility::unescapeQuotes(\$matches[3]) .
+                    '\";' : \$matches[0];
+                "
+            );
+        }
+
+        return preg_replace_callback($pattern, $callback, $input);
+    }
+
+    /**
+     * Unescape to avoid dump-text issues
+     *
+     * @param  string $input Text
+     * @return string
+     */
+    public static function unescapeMysql($input) {
+        return str_replace(
+            array('\\\\', '\\0', "\\n", "\\r", '\Z', "\'", '\"'),
+            array('\\', '\0', "\n", "\r", "\x1a", "'", '"'),
+            $input
         );
     }
 
     /**
-     * [testMakeMysqlDumpCreateSQL description]
-     * @return [type] [description]
+     * Fix strange behaviour if you have escaped quotes in your replacement
+     *
+     * @param  string $input Text
+     * @return string
      */
-    public function testMakeMysqlDumpCreateSQL()
-    {
-        $this->assertTrue(
-            MysqlDumpFactory::makeMysqlDump() instanceof MysqlDumpSQL
-        );
+    public static function unescapeQuotes($input) {
+        return str_replace('\"', '"', $input);
     }
 }
-

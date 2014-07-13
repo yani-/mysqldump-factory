@@ -29,13 +29,14 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.6.0
+ * @version   GIT: 1.7.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlDumpInterface.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlQueryAdapter.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlUtility.php';
 
 /**
  * MysqlDumpPDO class
@@ -46,7 +47,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlFileAdapter.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.6.0
+ * @version   GIT: 1.7.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -74,6 +75,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
     protected $oldTablePrefix   = null;
 
     protected $newTablePrefix   = null;
+
+    protected $oldReplaceValues = array();
+
+    protected $newReplaceValues = array();
 
     protected $queryClauses     = array();
 
@@ -219,6 +224,52 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
+     * Set old replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setOldReplaceValues($values)
+    {
+        $this->oldReplaceValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * Get old replace values
+     *
+     * @return array
+     */
+    public function getOldReplaceValues()
+    {
+        return $this->oldReplaceValues;
+    }
+
+    /**
+     * Set new replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setNewReplaceValues($values)
+    {
+        $this->newReplaceValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * Get new replace values
+     *
+     * @return array
+     */
+    public function getNewReplaceValues()
+    {
+        return $this->newReplaceValues;
+    }
+
+    /**
      * Set query clauses
      *
      * @param  array $clauses List of SQL query clauses
@@ -295,7 +346,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setNoTableData($flag)
     {
-        $this->noTableData = $flag;
+        $this->noTableData = (bool) $flag;
 
         return $this;
     }
@@ -318,7 +369,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setAddDropTable($flag)
     {
-        $this->addDropTable = $flag;
+        $this->addDropTable = (bool) $flag;
 
         return $this;
     }
@@ -341,7 +392,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public function setExtendedInsert($flag)
     {
-        $this->extendedInsert = $flag;
+        $this->extendedInsert = (bool) $flag;
 
         return $this;
     }
@@ -428,6 +479,37 @@ class MysqlDumpPDO implements MysqlDumpInterface
         }
 
         return $tables;
+    }
+
+    /**
+     * Replace table values
+     *
+     * @param  string $input Table value
+     * @return string
+     */
+    public function replaceTableValues($input)
+    {
+        $old = $this->getOldReplaceValues();
+        $new = $this->getNewReplaceValues();
+
+        $oldValues = array();
+        $newValues = array();
+
+        for ($i = 0; $i < count($old); $i++) {
+            if (!empty($old[$i]) && ($old[$i] != $new[$i]) && !in_array($old[$i], $oldValues)) {
+                $oldValues[] = $old[$i];
+                $newValues[] = $new[$i];
+            }
+        }
+
+        // Replace strings
+        $input = str_replace($oldValues, $newValues, $input);
+
+        // Verify serialization
+        return MysqlUtility::pregReplace(
+            $input,
+            '/s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");/'
+        );
     }
 
     /**
@@ -650,7 +732,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         while ($row = $result->fetch()) {
             $items = array();
             foreach ($row as $value) {
-                $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($value);;
+                $items[] = is_null($value) ? 'NULL' : $this->getConnection()->quote($this->replaceTableValues($value));
             }
 
             if ($insertFirst || !$this->getExtendedInsert()) {
