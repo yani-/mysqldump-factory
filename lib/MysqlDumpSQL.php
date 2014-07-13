@@ -71,6 +71,10 @@ class MysqlDumpSQL implements MysqlDumpInterface
 
     protected $newTablePrefix   = null;
 
+    protected $oldReplaceValues = array();
+
+    protected $newReplaceValues = array();
+
     protected $queryClauses     = array();
 
     protected $includeTables    = array();
@@ -208,6 +212,52 @@ class MysqlDumpSQL implements MysqlDumpInterface
     public function getNewTablePrefix()
     {
         return $this->newTablePrefix;
+    }
+
+    /**
+     * Set old replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setOldReplaceValues($values)
+    {
+        $this->oldReplaceValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * Get old replace values
+     *
+     * @return array
+     */
+    public function getOldReplaceValues()
+    {
+        return $this->oldReplaceValues;
+    }
+
+    /**
+     * Set new replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setNewReplaceValues($values)
+    {
+        $this->newReplaceValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * Get new replace values
+     *
+     * @return array
+     */
+    public function getNewReplaceValues()
+    {
+        return $this->newReplaceValues;
     }
 
     /**

@@ -113,6 +113,36 @@ interface MysqlDumpInterface
     public function getNewTablePrefix();
 
     /**
+     * Set old replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setOldReplaceValues($values);
+
+    /**
+     * Get old replace values
+     *
+     * @return array
+     */
+    public function getOldReplaceValues();
+
+    /**
+     * Set new replace values
+     *
+     * @param  array $values List of values
+     * @return MysqlDumpPDO
+     */
+    public function setNewReplaceValues($values);
+
+    /**
+     * Get new replace values
+     *
+     * @return array
+     */
+    public function getNewReplaceValues();
+
+    /**
      * Set query clauses
      *
      * @param  array $clauses List of SQL query clauses
