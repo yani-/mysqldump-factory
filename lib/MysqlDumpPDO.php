@@ -505,7 +505,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $input = str_replace($oldValues, $newValues, $input);
 
         // Verify serialization
-        return  $this->pregReplace(
+        return $this->pregReplace(
             $input,
             '/s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");/'
         );
