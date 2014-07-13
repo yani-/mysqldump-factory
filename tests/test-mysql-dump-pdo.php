@@ -55,6 +55,22 @@ class MysqlDumpPDOTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * [replaceTableValues description]
+     * @return [type] [description]
+     */
+    public function testReplaceTableValues()
+    {
+        $this->adapter->setOldReplaceValues(array('old'));
+        $this->adapter->setNewReplaceValues(array('new'));
+
+        $input = serialize('value old');
+
+        $result = $this->adapter->replaceTableValues($input);
+
+        $this->assertEquals(serialize('value new'), $result);
+    }
+
+    /**
      * [replaceTableNamePrefix description]
      * @return [type] [description]
      */
