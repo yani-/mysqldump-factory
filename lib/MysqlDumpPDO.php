@@ -495,7 +495,7 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $newValues = array();
 
         for ($i = 0; $i < count($old); $i++) {
-            if (!empty($old[$i]) && $old[$i] != $new[$i] && !in_array($old[$i], $oldValues)) {
+            if (!empty($old[$i]) && ($old[$i] != $new[$i]) && !in_array($old[$i], $oldValues)) {
                 $oldValues[] = $old[$i];
                 $newValues[] = $new[$i];
             }
