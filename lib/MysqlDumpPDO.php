@@ -571,30 +571,6 @@ class MysqlDumpPDO implements MysqlDumpInterface
     }
 
     /**
-     * Get MySQL connection (lazy loading)
-     *
-     * @return PDO
-     */
-    public function getConnection()
-    {
-        if ($this->connection === null) {
-            try {
-                // Make connection (Socket)
-                $this->connection = $this->makeConnection();
-            } catch (Exception $e) {
-                try {
-                    // Make connection (TCP)
-                    $this->connection = $this->makeConnection(false);
-                } catch (Exception $e) {
-                    throw new Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
-                }
-            }
-        }
-
-        return $this->connection;
-    }
-
-    /**
      * Unescape to avoid dump-text issues
      *
      * @param  string $input Text
@@ -616,6 +592,30 @@ class MysqlDumpPDO implements MysqlDumpInterface
      */
     public static function unescapeQuotes($input) {
         return str_replace('\"', '"', $input);
+    }
+
+    /**
+     * Get MySQL connection (lazy loading)
+     *
+     * @return PDO
+     */
+    public function getConnection()
+    {
+        if ($this->connection === null) {
+            try {
+                // Make connection (Socket)
+                $this->connection = $this->makeConnection();
+            } catch (Exception $e) {
+                try {
+                    // Make connection (TCP)
+                    $this->connection = $this->makeConnection(false);
+                } catch (Exception $e) {
+                    throw new Exception('Unable to connect to MySQL database server: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return $this->connection;
     }
 
     /**
