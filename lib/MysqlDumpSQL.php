@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.7.0
+ * @version   GIT: 1.8.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -47,7 +47,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlUtility.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 1.7.0
+ * @version   GIT: 1.8.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpSQL implements MysqlDumpInterface
@@ -437,6 +437,9 @@ class MysqlDumpSQL implements MysqlDumpInterface
 
                 // Replace insert into prefix
                 $line = $this->replaceInsertIntoPrefix($line);
+
+                // Replace table values
+                $line = $this->replaceTableValues($line);
 
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
