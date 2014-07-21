@@ -438,6 +438,9 @@ class MysqlDumpSQL implements MysqlDumpInterface
                 // Replace insert into prefix
                 $line = $this->replaceInsertIntoPrefix($line);
 
+                // Replace table values
+                $line = $this->replaceTableValues($line);
+
                 $query .= $line;
                 if (preg_match('/;\s*$/', $line)) {
                     // Run SQL query
