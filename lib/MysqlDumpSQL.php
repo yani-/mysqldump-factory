@@ -490,13 +490,13 @@ class MysqlDumpSQL implements MysqlDumpInterface
         // Replace strings
         for ($i = 0; $i < count($old); $i++) {
             if (!empty($old[$i]) && ($old[$i] != $new[$i]) && !in_array($old[$i], $oldValues)) {
-                $oldValues[] = '/\b' . preg_quote($old[$i], '/') . '\b/';
+                $oldValues[] = '/\b' . preg_quote($old[$i], '/') . '\b/i';
                 $newValues[] = $new[$i];
             }
         }
 
         // Replace table prefix
-        $oldValues[] = '/\b' . preg_quote($this->getOldTablePrefix(), '/') . '/';
+        $oldValues[] = '/\b' . preg_quote($this->getOldTablePrefix(), '/') . '/i';
         $newValues[] = $this->getNewTablePrefix();
 
         // Replace table values
