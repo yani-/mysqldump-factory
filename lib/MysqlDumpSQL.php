@@ -490,17 +490,17 @@ class MysqlDumpSQL implements MysqlDumpInterface
         // Replace strings
         for ($i = 0; $i < count($old); $i++) {
             if (!empty($old[$i]) && ($old[$i] != $new[$i]) && !in_array($old[$i], $oldValues)) {
-                $oldValues[] = '/\b' . preg_quote($old[$i], '/') . '\b/ui';
+                $oldValues[] = $old[$i];
                 $newValues[] = $new[$i];
             }
         }
 
         // Replace table prefix
-        $oldValues[] = '/\b' . preg_quote($this->getOldTablePrefix(), '/') . '/ui';
+        $oldValues[] = $this->getOldTablePrefix();
         $newValues[] = $this->getNewTablePrefix();
 
         // Replace table values
-        $input = preg_replace($oldValues, $newValues, $input);
+        $input = str_replace($oldValues, $newValues, $input);
 
         // Verify serialization
         return MysqlUtility::pregReplace(
