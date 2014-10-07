@@ -104,11 +104,11 @@ class MysqlQueryAdapter
 
     public function start_add_lock_table($tableName)
     {
-        return "LOCK TABLES `$tableName` WRITE;\n";
+        return "LOCK TABLES `$tableName` WRITE";
     }
 
     public function end_add_lock_tables()
     {
-        return "UNLOCK TABLES;\n";
+        return "UNLOCK TABLES";
     }
 }
