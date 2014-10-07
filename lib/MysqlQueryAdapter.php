@@ -56,6 +56,11 @@ class MysqlQueryAdapter
     {
         return "SET NAMES '$encoding'";
     }
+    
+    public function set_foreign_key($enabled = 0)
+    {
+        return "SET FOREIGN_KEY_CHECKS = $enabled";
+    }    
 
     public function show_create_table($tableName)
     {
