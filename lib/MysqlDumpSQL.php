@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -47,7 +47,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlUtility.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpSQL implements MysqlDumpInterface
@@ -610,7 +610,12 @@ class MysqlDumpSQL implements MysqlDumpInterface
         // Select database and set default encoding
         if ($connection) {
             if (mysql_select_db($this->database, $connection)) {
+                // Set default encoding
                 $query = $this->queryAdapter->set_names('utf8');
+                mysql_unbuffered_query($query, $connection);
+
+                // Set foreign key
+                $query = $this->queryAdapter->set_foreign_key(0);
                 mysql_unbuffered_query($query, $connection);
             } else {
                 throw new Exception('Could not select MySQL database: ' . mysql_error($connection));

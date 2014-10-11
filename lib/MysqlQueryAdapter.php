@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -42,7 +42,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlQueryAdapter
@@ -55,6 +55,11 @@ class MysqlQueryAdapter
     public function set_names($encoding = 'utf8')
     {
         return "SET NAMES '$encoding'";
+    }
+
+    public function set_foreign_key($enabled = 0)
+    {
+        return "SET FOREIGN_KEY_CHECKS = $enabled";
     }
 
     public function show_create_table($tableName)
@@ -99,11 +104,11 @@ class MysqlQueryAdapter
 
     public function start_add_lock_table($tableName)
     {
-        return "LOCK TABLES `$tableName` WRITE;\n";
+        return "LOCK TABLES `$tableName` WRITE";
     }
 
     public function end_add_lock_tables()
     {
-        return "UNLOCK TABLES;\n";
+        return "UNLOCK TABLES";
     }
 }

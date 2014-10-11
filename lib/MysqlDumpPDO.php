@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -47,7 +47,7 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'MysqlUtility.php';
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlDumpPDO implements MysqlDumpInterface
@@ -640,6 +640,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
 
         // Set default encoding
         $query = $this->queryAdapter->set_names('utf8');
+        $connection->exec($query);
+
+        // Set foreign key
+        $query = $this->queryAdapter->set_foreign_key(0);
         $connection->exec($query);
 
         return $connection;
