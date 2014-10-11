@@ -642,6 +642,10 @@ class MysqlDumpPDO implements MysqlDumpInterface
         $query = $this->queryAdapter->set_names('utf8');
         $connection->exec($query);
 
+        // Set foreign key
+        $query = $this->queryAdapter->set_foreign_key(0);
+        $connection->exec($query);
+
         return $connection;
     }
 
