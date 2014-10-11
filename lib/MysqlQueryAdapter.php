@@ -29,7 +29,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 
@@ -42,7 +42,7 @@
  * @author    Bobby Angelov <bobby@servmask.com>
  * @copyright 2014 Yani Iliev, Bobby Angelov
  * @license   https://raw.github.com/yani-/mysqldump-factory/master/LICENSE The MIT License (MIT)
- * @version   GIT: 2.1.0
+ * @version   GIT: 2.2.0
  * @link      https://github.com/yani-/mysqldump-factory/
  */
 class MysqlQueryAdapter
@@ -56,11 +56,11 @@ class MysqlQueryAdapter
     {
         return "SET NAMES '$encoding'";
     }
-    
+
     public function set_foreign_key($enabled = 0)
     {
         return "SET FOREIGN_KEY_CHECKS = $enabled";
-    }    
+    }
 
     public function show_create_table($tableName)
     {
